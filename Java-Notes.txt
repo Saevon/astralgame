@@ -1,0 +1,90 @@
+JAVA NOTES
+----------
+(Place any notes you have on the classes)
+Note: Use "from" as in "@Dmitri" format!
+
+
+General Notes
+
+- Write any notes about classes
+- Commands:
+
+> buy ^,1,2
+Buys item and places at those coords
+
+> help
+Shows command info and game infoand symbols
+
+> sell ^,4,2
+Sells item at those coords
+
+> status 6,8
+Prints out info about item at that location
+Format:
+# - Castle (6,8) [Player 1]
+HP: 40/50
+Value: $50
+Fix Cost: $4/HP
+Extra: Lose game if destroyed.
+
+> fix 1,1
+Prompts for ix of an item
+Format:
+Castle's HP: 40/50
+Amount (MAX=10)? ___
+
+> attack 3,1,s
+Format:
+3,1 - From location at those coords
+s - Direction of attack (n,e,s,w)
+Output Format:
+Power (MAX=15)? ___
+ATTACK!!!
+
+Results:
+Target HP: 0/15
+Power Left: 12
+Next Attack: West
+--Press ENTER--
+// Countines until stopped
+
+> quit
+Disconnects rom game
+
+> cc player.setMoney(100)
+Allows entering of "cheat codes" or for debugging
+Current Codes:
+items.fix(x,y,amount)
+player.setMoney(1,2000) //(player,amount)
+player.setPower(1,20) //(player,amount)
+
+
+- Map Colors:
+(First color is player1, second is player2)
+Item with 100-65% HP - Green/Blue
+Item with 65-30% HP - Yellow/Purple
+Item with 30-1% HP - Red/Orange
+Item that is currently attacking - Cyan
+
+
+-----------------
+1) MainGame.java
+
+
+2) ClientNet.java
+
+
+3) ServerNet.java
+
+
+4) Mapping.java
+
+
+5) Player.java
+
+
+6) Items.java
+
+
+7) Stats.java
+

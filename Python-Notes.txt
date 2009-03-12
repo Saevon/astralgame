@@ -1,0 +1,16 @@
+PYTHON NOTES
+----------
+(Place any notes you have on the classes)
+Note: Use "from" as in "@Dmitri" format!
+
+
+General Notes
+
+- @Dmitri: Serghei, when you upload yours, structure this as the Java one!
+- 
+
+
+-----------------
+1) 
+
+
