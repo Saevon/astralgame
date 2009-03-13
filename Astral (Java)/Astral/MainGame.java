@@ -95,7 +95,7 @@ public class MainGame {
       client.joinHost();
       Mapping map = new Mapping(5,5);
     } else {
-      Mapping map = new Mapping(5,5);
+      Mapping map = new Mapping(15,15);
     }
   }
   

@@ -9,15 +9,14 @@
 package Astral;
 
 
-// @Dmitri: IGNORE class for now, its a old version (in fact i'll probably delete it)
 public class Mapping {
   private int height = 1;
   private int length = 1;
   private int[][] array;
   
   public Mapping() {
-    height = 10;
-    length = 12;
+    height = 15;
+    length = 15;
     array = new int[length][height];
     drawMap();
   }
@@ -31,9 +30,40 @@ public class Mapping {
   
   private void drawMap() {
     // Draws out initial map from the array
-    int c1 = 0;
-    int c2 = 0;
-    //while (
+    int ch = 1;
+    int cl = 1;
+    while (ch<=height) {
+      while (cl<=length) {
+        array[cl-1][ch-1] = 0;
+        cl++;
+      }
+      cl = 1;
+      ch++;
+    }
+    redraw();
+  }
+  
+  public void redraw() {
+    //Re-draw the map
+    int ch = 1;
+    int cl = 1;
+    boolean ci = true;
+    System.out.print("\n");
+    while (ch<=height) {
+      while (cl<=length) {
+        switch (array[cl-1][ch-1]) {
+          case 0: if (ci) { System.out.print("o"); ci = false; } else { System.out.print(" "); ci = true; } break;
+        }
+        cl++;
+      }
+       cl = 1;
+      System.out.println();
+      ch++;
+    }
+    for (int lnum = 1; lnum<=length; lnum++) {
+    System.out.print(lnum);
+    }
+    System.out.println();
   }
   
 }

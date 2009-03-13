@@ -34,37 +34,42 @@ public class Stats {
   
   public static String getName(String symbol) {
     //Gets name of item
-    
+    return readStats(symbol,"name");
   }
   
-  public static int getMaxHP(String symbol) {
+  public static String getMaxHP(String symbol) {
     //Gets max HP of item
-    
+    return readStats(symbol,"HP");
   }
   
   public static String getCost(String symbol) {
     //Gets cost of item
-    
+    return readStats(symbol,"cost");
   }
   
-  public static String getfixcost(String symbol) {
+  public static String getFixCost(String symbol) {
     //Gets name of item
-    
+    return readStats(symbol,"fixcost");
   }
   
   public static String getValue(String symbol) {
     //Gets value of item
-    
+    return readStats(symbol,"value");
   }
   
   public static String getExtraInfo(String symbol) {
     //Gets name of item
-    
+    return readStats(symbol,"extra");
   }
   
   public static String getMax(String symbol) {
     //Gets max allowed of item
-    
+    return readStats(symbol,"max");
+  }
+  
+  private static String readStats(String symbol, String type) {
+    //Reads data/stats.db to get properties
+    return null;
   }
   
 }

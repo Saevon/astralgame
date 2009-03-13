@@ -25,10 +25,10 @@ public class Items {
    * (All other stats are stored in this class itself)
    */
   
-  public void new(int x, int y, String symbol, int player, int hp) {
+  public void create(int x, int y, String symbol, int player, int hp) {
     //Creats a new item
-    String text = Convert.toString(x)+","+Convert.toString(y)+";"+symbol+
-                  ","+Convert.toString(player)+","+Convert.toString(hp);
+    String text = Integer.toString(x)+","+Integer.toString(y)+";"+symbol+
+                  ","+Integer.toString(player)+","+Integer.toString(hp);
     write(x, y, text);
   }
   
@@ -37,15 +37,15 @@ public class Items {
     return read(x,y,"symbol");
   }
   
-  public String getInfo(x,y) {
+  public String getInfo(int x, int y) {
     //Returns a formatted string with info about an item
     String itemname = Stats.getName(getItem(x,y));
-    String maxhp = Convert.toString(Stats.getMaxHP(getItem(x,y)));
-    String value = Convert.toString(Stats.getValue(getItem(x,y)));
-    String fixcost = Convert.toString(Stats.getFixCost(getItem(x,y)));
+    String maxhp = Stats.getMaxHP(getItem(x,y));
+    String value = Stats.getValue(getItem(x,y));
+    String fixcost = Stats.getFixCost(getItem(x,y));
     String extra = Stats.getExtraInfo(getItem(x,y));
     String text1 =  "\n"+getItem(x,y)+" - "+itemname+" ("+
-                    Convert.toString(x)+","+Convert.toString(y)+
+                    Integer.toString(x)+","+Integer.toString(y)+
                     ") [Player "+getPlayer(x,y)+"]\n";
     String text2 = "HP: "+getHP(x,y)+"/"+maxhp+"/n";
     String text3 = "Value: $"+value;
@@ -63,8 +63,8 @@ public class Items {
     //Changes the HP of an item. Amount may be negative
     //to decrease HP (i.e got attacked)
     int hp = getHP(x,y) + amount;
-    String text = Convert.toString(x)+","+Convert.toString(y)+";"+getItem(x,y)+
-                  ","+getPlayer(x,y)+","+Convert.toString(hp);
+    String text = Integer.toString(x)+","+Integer.toString(y)+";"+getItem(x,y)+
+                  ","+getPlayer(x,y)+","+Integer.toString(hp);
     write(x, y, text);
   }
   

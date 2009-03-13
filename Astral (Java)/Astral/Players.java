@@ -11,7 +11,7 @@ package Astral;
 
 public class Players {
   private int money1 = 0;
-  private int money1 = 0;
+  private int money2 = 0;
   private int maxpower1 = 0;
   private int maxpower2 = 0;
   private int power1 = 0;
@@ -21,7 +21,7 @@ public class Players {
   private String clr1;
   private String clr2;
   
-  public Players(String name1, String name2, int startmoney, startpower) {
+  public Players(String name1, String name2, int startmoney, int startpower) {
     this.name1 = name1;
     this.name2 = name2;
     this.money1 = startmoney;
