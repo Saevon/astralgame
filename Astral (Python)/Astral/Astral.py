@@ -423,12 +423,12 @@ while choice != "5" or choice.lower() == "quit":
                         # for Astral Lines
                         exec "build_type =player%i.buildings[(%i,%i)]['TYPE']" % (play, x_value, y_value)
                         sym = " "
-                        if "AL" in build_type and ((x_value % 2 == 0 and y_value % 2 != 0) or (x_value % 2 == 0 and y_value % 2 != 0)):
+                        if "AL" in build_type and ((x_value % 2 == 0 and y_value % 2 != 0) or (x_value % 2 != 0 and y_value % 2 == 0)):
                             exec "sym = player%i.buildings[(%i,%i)]['SYMB']" % (play, x_value, y_value)
                             exec "set_color(color_num(player%i.color))" % (play)
                             if (x_value % 2 == 0 and y_value % 2 != 0):
                                 sym = sym[0]
-                            elif (x_value % 2 == 0 and y_value % 2 != 0):
+                            elif (x_value % 2 != 0 and y_value % 2 == 0):
                                 sym = sym[1]
                         # for buildings
                         elif "B" in build_type and x_value % 2 == 0 and y_value % 2 == 0:
