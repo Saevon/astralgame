@@ -11,7 +11,7 @@ package Astral;
 import java.io.*;
 
 
-public static class Stats {
+public class Stats {
   /*
    * All stats can be found and edited in data/stats.db
    * Format:
@@ -30,5 +30,25 @@ public static class Stats {
    * %
    * #           //end of file
    */
+  
+  public static String getName(String symbol) {
+    //Gets name of item
+    
+  }
+  
+  public static int getMaxHP(String symbol) {
+    //Gets max HP of item
+    
+  }
+  
+  public static String getCost(String symbol) {
+    //Gets cost of item
+    
+  }
+  
+  public static String getfixcost(String symbol) {
+    //Gets name of item
+    
+  }
   
 }
