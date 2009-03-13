@@ -23,8 +23,16 @@ public class MainGame {
   static String prp = "";
   static String cr = "";
   static String yell = "";
-  static int sizex = 15;
-  static int sizey = 15;
+  /* The array stores numbers corrresponding to items
+   * Format:
+   * blank = 0
+   * + = 1
+   * # = 2
+   * ^ = 3
+   */
+  static int height = 15;
+  static int length = 15;
+  static int[][] array;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -56,7 +64,7 @@ public class MainGame {
      switch (mainchoice) {
        case 1: setUpGame(); looper=0; break;
        case 2: System.out.println("(Sorry this is not yet implemented)"); sleep(1); break;
-       case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); sizex = Integer.parseInt(ms.substring(0,ms.indexOf(","))); sizey = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
+       case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); length = Integer.parseInt(ms.substring(0,ms.indexOf(","))); height = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
        case 4: System.out.println("Thanks for playing!"); System.exit(0);
        default: System.out.println(nocmd); sleep(1); break;
       }
@@ -88,19 +96,21 @@ public class MainGame {
   
   private static void beginGame(String type) {
     //Begins the game
-    
     if (type.equals("host")) {
       ServerNet server = new ServerNet();
       server.startHost();
-      Mapping map = new Mapping(sizex,sizey);
+      array = new int[length][height];
+      newMap();
     }
     
     if (type.equals("join")) {
       ClientNet client = new ClientNet();
       client.joinHost();
-      Mapping map = new Mapping(sizex,sizey);
+      array = new int[length][height];
+      newMap();
     } else {
-      Mapping map = new Mapping(sizex,sizey);
+      array = new int[length][height];
+      newMap();
       while (true) {
         localTasks();
       }
@@ -118,6 +128,71 @@ public class MainGame {
      * 6) Executes command
      */
     
+  }
+  
+  private static void newMap() {
+    // Draws out initial map from the array
+    int ch = 1;
+    int cl = 1;
+    while (ch<=height) {
+      while (cl<=length) {
+        array[cl-1][ch-1] = 0;
+        cl++;
+      }
+      cl = 1;
+      ch++;
+    }
+  }
+  
+  private static void addItem(int x, int y, String symbol) {
+    //Adds an item to array
+    int itemtype = 0;
+    if (symbol.equals("+")) {
+      itemtype = 1;
+    } else if (symbol.equals("#")) {
+      itemtype = 2;
+    } else if (symbol.equals("V")) {
+      itemtype = 3;
+    }
+    array[x-1][y-1] = itemtype;
+  }
+  
+  private static void redraw() {
+    //Re-draw the map
+    int ch = 1;
+    int cl = 1;
+    boolean ci = true;
+    System.out.print("\n");
+    while (ch<=height) {
+      if (ch<10) {
+    System.out.print(ch);
+      } else {
+        System.out.print(Integer.toString(ch).substring(1,2));
+      }
+      while (cl<=length) {
+        System.out.print(" ");
+        switch (array[cl-1][ch-1]) {
+          case 1: if (ci) { System.out.print("+"); ci = false; } else { System.out.print("+"); ci = true; } break;
+          case 2: if (ci) { System.out.print("#"); ci = false; } else { System.out.print("#"); ci = true; } break;
+          case 3: if (ci) { System.out.print("^"); ci = false; } else { System.out.print("^"); ci = true; } break;
+          default: if (ci) { System.out.print("o"); ci = false; } else { System.out.print(" "); ci = true; } break;
+        }
+        cl++;
+      }
+      ci = true;
+       cl = 1;
+      System.out.println();
+      ch++;
+    }
+    System.out.print("  ");
+    for (int lnum = 1; lnum<=length; lnum++) {
+      if (lnum<10) {
+    System.out.print(lnum+" ");
+      } else {
+        System.out.print(Integer.toString(lnum).substring(1,2)+" ");
+      }
+    }
+    System.out.println();
   }
   
   private static void sleep(int seconds) {
