@@ -28,7 +28,7 @@ Fix Cost: $4/HP
 Extra: Lose game if destroyed.
 
 > fix 1,1
-Prompts for ix of an item
+Prompts for fix of an item
 Format:
 Castle's HP: 40/50
 Amount (MAX=10)? ___
@@ -57,6 +57,10 @@ Current Codes:
 items.fix(x,y,amount)
 player.setMoney(1,2000) //(player,amount)
 player.setPower(1,20) //(player,amount)
+
+> learn 3,1,GM
+Specifies Mage Tower to learn from
+then the skill to learn.
 
 
 - Map Colors:
