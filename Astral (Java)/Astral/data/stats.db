@@ -1,0 +1,32 @@
+@
+%
+name=Castle
+symbol=#
+HP=150
+cost=-1
+fixcost=2
+value=-1
+max=1
+extra="You lose if it is destroyed"
+%
+%
+name=AstralLine
+symbol=|,-
+HP=1
+cost=5
+fixcost=2
+value=2
+max=-1
+extra="Allows buildings to be connected"
+%
+%
+name=Village
+symbol=V
+HP=10
+cost=30
+fixcost=2
+value=15
+max=-1
+extra="You can use this as an offensive structure"
+%
+#
