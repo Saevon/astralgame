@@ -52,4 +52,19 @@ public class Stats {
     
   }
   
+  public static String getValue(String symbol) {
+    //Gets value of item
+    
+  }
+  
+  public static String getExtraInfo(String symbol) {
+    //Gets name of item
+    
+  }
+  
+  public static String getMax(String symbol) {
+    //Gets max allowed of item
+    
+  }
+  
 }
