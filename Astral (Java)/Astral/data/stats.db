@@ -11,7 +11,7 @@ extra="You lose if it is destroyed"
 %
 %
 name=AstralLine
-symbol=|,-
+symbol=+
 HP=1
 cost=5
 fixcost=2

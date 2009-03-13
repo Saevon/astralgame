@@ -23,6 +23,8 @@ public class MainGame {
   static String prp = "";
   static String cr = "";
   static String yell = "";
+  static int sizex = 15;
+  static int sizey = 15;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -45,14 +47,17 @@ public class MainGame {
     SimpleIO.prompt(gr+"\nMAIN MENU\n"+
                     "1) Start a new game\n"+
                     "2) View Help\n"+
-                    "3) Quit\n"+
+                    "3) Set Map Size\n"+
+                    "4) Quit\n"+
                     cmd);
     try {
      int mainchoice = Integer.parseInt(SimpleIO.readLine());
+     String ms;
      switch (mainchoice) {
        case 1: setUpGame(); looper=0; break;
        case 2: System.out.println("(Sorry this is not yet implemented)"); sleep(1); break;
-       case 3: System.out.println("Thanks for playing!"); System.exit(0);
+       case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); sizex = Integer.parseInt(ms.substring(0,ms.indexOf(","))); sizey = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
+       case 4: System.out.println("Thanks for playing!"); System.exit(0);
        default: System.out.println(nocmd); sleep(1); break;
       }
      } catch (Exception ex) { System.out.println(nocmd); sleep(1); }
@@ -87,16 +92,32 @@ public class MainGame {
     if (type.equals("host")) {
       ServerNet server = new ServerNet();
       server.startHost();
-      Mapping map = new Mapping(5,5);
+      Mapping map = new Mapping(sizex,sizey);
     }
     
     if (type.equals("join")) {
       ClientNet client = new ClientNet();
       client.joinHost();
-      Mapping map = new Mapping(5,5);
+      Mapping map = new Mapping(sizex,sizey);
     } else {
-      Mapping map = new Mapping(15,15);
+      Mapping map = new Mapping(sizex,sizey);
+      while (true) {
+        localTasks();
+      }
     }
+  }
+  
+  private static void localTasks() {
+    /* Does all the tasks required each turn
+     * Format:
+     * 1) Draw Map and CMD prompt
+     * 2) Checks entered command
+     * 3) Executes command
+     * 4) Re-Draws Map and CMD prompt
+     * 5) Checks P2's command
+     * 6) Executes command
+     */
+    
   }
   
   private static void sleep(int seconds) {
