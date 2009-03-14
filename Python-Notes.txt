@@ -6,7 +6,7 @@ Note: Use "from" as in "@Dmitri" format!
 
 General Notes
 
-- @Dmitri: Serghei, when you upload yours, structure this as the Java one!
+- @Dmitri: Serghei, when you upload yours, structure this as the Java-Notes one!
 - 
 
 

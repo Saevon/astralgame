@@ -98,7 +98,7 @@ public class Items {
       if (str.eq
     }
     String spaces = "";
-    while
+    while (
     if (info.equals("erase")) {
       //Erase data from file
       
