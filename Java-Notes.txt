@@ -62,6 +62,9 @@ player.setPower(1,20) //(player,amount)
 Specifies Mage Tower to learn from
 then the skill to learn.
 
+> done
+Ends player's turn.
+
 
 - Map Colors:
 (First color is player1, second is player2)

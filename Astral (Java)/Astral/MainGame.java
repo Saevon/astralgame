@@ -33,6 +33,7 @@ public class MainGame {
   static int height = 15;
   static int length = 15;
   static int[][] array;
+  static int curplayer = 1;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -124,10 +125,14 @@ public class MainGame {
      * 2) Checks entered command
      * 3) Executes command
      * 4) Re-Draws Map and CMD prompt
-     * 5) Checks P2's command
-     * 6) Executes command
      */
-    
+    redraw();
+    SimpleIO.prompt("\n"+cmd);
+    String usercmd = SimpleIO.readLine();
+    boolean allowed = cmdCheck(usercmd);
+    if (allowed) {
+      cmdRun(usercmd);
+    }
   }
   
   private static void newMap() {

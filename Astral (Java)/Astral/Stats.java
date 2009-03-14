@@ -69,7 +69,20 @@ public class Stats {
   
   private static String readStats(String symbol, String type) {
     //Reads data/stats.db to get properties
-    return null;
+    String spr = System.getProperty("path.separator");
+    try {
+        BufferedReader in = new BufferedReader(new FileReader(spr+"data"+spr+"stats.db"));
+        String str;
+        while (((str = in.readLine()).indexOf(symbol))==-1) {
+        }
+        while (((str = in.readLine()).indexOf(type))==-1) {
+        }
+        in.close();
+        return str.substring(str.indexOf("="+1));
+    } catch (IOException e) {
+      System.out.println("ERROR READING FILE");
+      System.exit(-1);
+    }
   }
   
 }
