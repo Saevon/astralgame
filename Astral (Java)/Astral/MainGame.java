@@ -155,7 +155,7 @@ public class MainGame {
         result = true;
       } else {
         System.out.println(red+"Not enough money!"+cr);
-        sleep(0.5);
+        sleep(0.8);
       }
     } else if (uc.indexOf("quit")!=-1) {
       result = true;
@@ -167,13 +167,13 @@ public class MainGame {
         result = true;
       } else {
         System.out.println(red+"Can't be sold!"+cr);
-        sleep(0.5);
+        sleep(0.8);
       }
     } else if (uc.indexOf("status")!=-1) {
       result = true;
     } else {
       System.out.println(nocmd);
-      sleep(0.5);
+      sleep(0.8);
     }
     return result;
   }
@@ -189,15 +189,23 @@ public class MainGame {
       addItem(xcoord,ycoord,sym);
       items.create(xcoord,ycoord,sym,curplayer,Stats.getMaxHP(sym));
       System.out.println("Bought!");
-      sleep(0.5);
+      sleep(0.8);
     } else if (uc.indexOf("quit")!=-1) {
       System.out.println("Brutally Disconnecting...");
       System.exit(0);
     } else if (uc.indexOf("help")!=-1) {
       System.out.println("(Sorry, not yet implemented)");
-      sleep(0.5);
+      sleep(0.8);
     } else if (uc.indexOf("sell")!=-1) {
-      
+      int value = Stats.getValue(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      players.addMoney(curplayer, value);
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      String sym = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      addItem(xcoord,ycoord,"d");
+      items.delete(xcoord,ycoord);
+      System.out.println("Sold!");
+      sleep(0.8);
     } else if (uc.indexOf("status")!=-1) {
       
     }
@@ -230,6 +238,7 @@ public class MainGame {
     }
     array[x-1][y-1] = itemtype;
   }
+  
   
   private static void redraw() {
     //Re-draw the map
@@ -272,7 +281,7 @@ public class MainGame {
         System.out.print(Integer.toString(lnum).substring(1,2)+" ");
       }
     }
-    System.out.println("(P1 $"+players.getMoney(1)+",P2 $"+players.getMoney(2));
+    System.out.println("\n(P1 $"+players.getMoney(1)+",P2 $"+players.getMoney(2)+")");
   }
   
   private static void sleep(int seconds) {
