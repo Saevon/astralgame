@@ -94,8 +94,14 @@ public class Items {
       String str;
     String spr = System.getProperty("path.separator");
     RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db"), "rw");
-    while (((str = in.readLine()).indexOf(x+","+y))==-1) {
+    try {
+    str = in.readLine();
+    while ((str.indexOf(x+","+y))==-1) {
+      str = in.readLine();
     }
+    } catch (Exception ex) {
+        str = "";
+      }
     String spaces = "";
     int count1 = 1;
     while (spaces.length()<str.length()) {
@@ -112,8 +118,9 @@ public class Items {
       in.writeChars(info);
     }
       in.close();
-    } catch (IOException e) {
+    } catch (Exception e) {
       System.out.println("ERROR READING FILE");
+      e.printStackTrace();
       System.exit(-1);
     }
   }
@@ -125,8 +132,9 @@ public class Items {
     String value = "";
     try {
       String str;
-    String spr = System.getProperty("path.separator");
-    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db"), "rw");
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
+    RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     while (((str = in.readLine()).indexOf(x+","+y))==-1) {
     }
     in.close();
@@ -140,7 +148,7 @@ public class Items {
       value = str;
     }
     } catch (IOException e) {
-      System.out.println("ERROR READING FILE");
+      System.out.println("ERROR READING FILE(Called by:Items)");
       System.exit(-1);
     }
     return value;

@@ -69,20 +69,22 @@ public class Stats {
   
   private static String readStats(String symbol, String type) {
     //Reads data/stats.db to get properties
-    String spr = System.getProperty("path.separator");
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
     String str = "";
     try {
-        BufferedReader in = new BufferedReader(new FileReader(spr+"data"+spr+"stats.db"));
+        BufferedReader in = new BufferedReader(new FileReader(new File(dir+spr+"data"+spr+"stats.db")));
         while (((str = in.readLine()).indexOf(symbol))==-1) {
         }
         while (((str = in.readLine()).indexOf(type))==-1) {
         }
         in.close();
-    } catch (IOException e) {
-      System.out.println("ERROR READING FILE");
+        return str.substring(str.indexOf("=")+1);
+    } catch (Exception e) {
+      System.out.println("ERROR READING FILE(Called by:Stats)");
       System.exit(-1);
     }
-    return str.substring(str.indexOf("="+1));
+    return null;
   }
   
 }

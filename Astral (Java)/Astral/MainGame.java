@@ -33,7 +33,7 @@ public class MainGame {
    * # = 2
    * ^ = 3
    */
-  static int height = 15;
+  static int height = 9;
   static int length = 15;
   static int[][] array;
   static int curplayer = 1;
@@ -95,7 +95,7 @@ public class MainGame {
        case 4: looper=1; break;
        default: System.out.println(nocmd); sleep(1); break;
      }
-    }  catch (Exception ex) { System.out.println(nocmd); sleep(1); }
+    }  catch (Exception ex) { System.out.println(nocmd+ex.getMessage()); ex.printStackTrace(); sleep(1); }
     }
   }
   
@@ -119,8 +119,9 @@ public class MainGame {
       players = new Players("Player1", "Player2", 150, 0);
       items = new Items();
       String spr = System.getProperty("path.separator");
-      new File(spr+"data"+spr+"items.db").delete();
-      while (true) {
+      String dir = System.getProperty("user.dir")+spr+"Astral";
+      new File(dir+spr+"data"+spr+"items.db").delete();
+      while (true==true) {
         localTasks();
       }
     }
@@ -188,7 +189,7 @@ public class MainGame {
       addItem(xcoord,ycoord,sym);
       items.create(xcoord,ycoord,sym,curplayer,Stats.getMaxHP(sym));
       System.out.println("Bought!");
-      sleep(0.3);
+      sleep(0.5);
     } else if (uc.indexOf("quit")!=-1) {
       System.out.println("Brutally Disconnecting...");
       System.exit(0);
@@ -224,7 +225,7 @@ public class MainGame {
       itemtype = 1;
     } else if (symbol.equals("#")) {
       itemtype = 2;
-    } else if (symbol.equals("V")) {
+    } else if (symbol.equals("^")) {
       itemtype = 3;
     }
     array[x-1][y-1] = itemtype;
@@ -271,7 +272,7 @@ public class MainGame {
         System.out.print(Integer.toString(lnum).substring(1,2)+" ");
       }
     }
-    System.out.println();
+    System.out.println("(P1 $"+players.getMoney(1)+",P2 $"+players.getMoney(2));
   }
   
   private static void sleep(int seconds) {
