@@ -40,9 +40,9 @@ public class Items {
   public String getInfo(int x, int y) {
     //Returns a formatted string with info about an item
     String itemname = Stats.getName(getItem(x,y));
-    String maxhp = Stats.getMaxHP(getItem(x,y));
-    String value = Stats.getValue(getItem(x,y));
-    String fixcost = Stats.getFixCost(getItem(x,y));
+    String maxhp = Integer.toString(Stats.getMaxHP(getItem(x,y)));
+    String value = Integer.toString(Stats.getValue(getItem(x,y)));
+    String fixcost = Integer.toString(Stats.getFixCost(getItem(x,y)));
     String extra = Stats.getExtraInfo(getItem(x,y));
     String text1 =  "\n"+getItem(x,y)+" - "+itemname+" ("+
                     Integer.toString(x)+","+Integer.toString(y)+

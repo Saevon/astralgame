@@ -9,6 +9,7 @@
 package Astral;
 
 import jpb.*;
+import java.io.File;
 
 
 public class MainGame {
@@ -23,6 +24,8 @@ public class MainGame {
   static String prp = "";
   static String cr = "";
   static String yell = "";
+  static Players players;
+  static Items items;
   /* The array stores numbers corrresponding to items
    * Format:
    * blank = 0
@@ -34,6 +37,7 @@ public class MainGame {
   static int length = 15;
   static int[][] array;
   static int curplayer = 1;
+  static int turnphase = 1;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -112,6 +116,10 @@ public class MainGame {
     } else {
       array = new int[length][height];
       newMap();
+      players = new Players("Player1", "Player2", 150, 0);
+      items = new Items();
+      String spr = System.getProperty("path.separator");
+      new File(spr+"data"+spr+"items.db").delete();
       while (true) {
         localTasks();
       }
@@ -134,6 +142,66 @@ public class MainGame {
       cmdRun(usercmd);
     }
   }
+  
+  
+  
+  private static boolean cmdCheck(String uc) {
+    //Checks if command is allowed
+    boolean result = false;
+    if (uc.indexOf("buy")!=-1) {
+      int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
+        result = true;
+      } else {
+        System.out.println(red+"Not enough money!"+cr);
+        sleep(0.5);
+      }
+    } else if (uc.indexOf("quit")!=-1) {
+      result = true;
+    } else if (uc.indexOf("help")!=-1) {
+      result = true;
+    } else if (uc.indexOf("sell")!=-1) {
+      int value = Stats.getValue(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      if (value!=-1) {
+        result = true;
+      } else {
+        System.out.println(red+"Can't be sold!"+cr);
+        sleep(0.5);
+      }
+    } else if (uc.indexOf("status")!=-1) {
+      result = true;
+    } else {
+      System.out.println(nocmd);
+      sleep(0.5);
+    }
+    return result;
+  }
+  
+  private static void cmdRun(String uc) {
+    //Executes specified command
+    if (uc.indexOf("buy")!=-1) {
+      int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      players.addMoney(curplayer, -cost);
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      String sym = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      addItem(xcoord,ycoord,sym);
+      items.create(xcoord,ycoord,sym,curplayer,Stats.getMaxHP(sym));
+      System.out.println("Bought!");
+      sleep(0.3);
+    } else if (uc.indexOf("quit")!=-1) {
+      System.out.println("Brutally Disconnecting...");
+      System.exit(0);
+    } else if (uc.indexOf("help")!=-1) {
+      System.out.println("(Sorry, not yet implemented)");
+      sleep(0.5);
+    } else if (uc.indexOf("sell")!=-1) {
+      
+    } else if (uc.indexOf("status")!=-1) {
+      
+    }
+  }
+  
   
   private static void newMap() {
     // Draws out initial map from the array
@@ -167,8 +235,10 @@ public class MainGame {
     int ch = 1;
     int cl = 1;
     boolean ci = true;
+    boolean ci2 = true;
     System.out.print("\n");
     while (ch<=height) {
+      if (ci2) {
       if (ch<10) {
     System.out.print(ch);
       } else {
@@ -186,8 +256,12 @@ public class MainGame {
       }
       ci = true;
        cl = 1;
+       ci2 = !ci2;
+       ch++;
+      } else {
+        ci2 = !ci2;
+      }
       System.out.println();
-      ch++;
     }
     System.out.print("  ");
     for (int lnum = 1; lnum<=length; lnum++) {
@@ -203,6 +277,10 @@ public class MainGame {
   private static void sleep(int seconds) {
     //Quick game sleep method
     try { Thread.sleep(seconds*1000); } catch (Exception ex) {}
+  }
+  private static void sleep(double seconds) {
+    //Quick game sleep method
+    try { Thread.sleep((int)seconds*1000); } catch (Exception ex) {}
   }
 }
     

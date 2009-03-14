@@ -37,24 +37,24 @@ public class Stats {
     return readStats(symbol,"name");
   }
   
-  public static String getMaxHP(String symbol) {
+  public static int getMaxHP(String symbol) {
     //Gets max HP of item
-    return readStats(symbol,"HP");
+    return Integer.parseInt(readStats(symbol,"HP"));
   }
   
-  public static String getCost(String symbol) {
+  public static int getCost(String symbol) {
     //Gets cost of item
-    return readStats(symbol,"cost");
+    return Integer.parseInt(readStats(symbol,"cost"));
   }
   
-  public static String getFixCost(String symbol) {
+  public static int getFixCost(String symbol) {
     //Gets name of item
-    return readStats(symbol,"fixcost");
+    return Integer.parseInt(readStats(symbol,"fixcost"));
   }
   
-  public static String getValue(String symbol) {
+  public static int getValue(String symbol) {
     //Gets value of item
-    return readStats(symbol,"value");
+    return Integer.parseInt(readStats(symbol,"value"));
   }
   
   public static String getExtraInfo(String symbol) {
@@ -62,27 +62,27 @@ public class Stats {
     return readStats(symbol,"extra");
   }
   
-  public static String getMax(String symbol) {
+  public static int getMax(String symbol) {
     //Gets max allowed of item
-    return readStats(symbol,"max");
+    return Integer.parseInt(readStats(symbol,"max"));
   }
   
   private static String readStats(String symbol, String type) {
     //Reads data/stats.db to get properties
     String spr = System.getProperty("path.separator");
+    String str = "";
     try {
         BufferedReader in = new BufferedReader(new FileReader(spr+"data"+spr+"stats.db"));
-        String str;
         while (((str = in.readLine()).indexOf(symbol))==-1) {
         }
         while (((str = in.readLine()).indexOf(type))==-1) {
         }
         in.close();
-        return str.substring(str.indexOf("="+1));
     } catch (IOException e) {
       System.out.println("ERROR READING FILE");
       System.exit(-1);
     }
+    return str.substring(str.indexOf("="+1));
   }
   
 }
