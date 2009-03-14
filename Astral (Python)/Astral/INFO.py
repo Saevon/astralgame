@@ -28,11 +28,13 @@ for item in resear:
     temp["NAME"] = item[0].strip('"').strip("'")
     RESEARCH[item[0].strip('"').strip("'")] = temp.copy()
     
+"""
 del temp
 del build
 del resear
 del item
 del val
+"""
 
 #Two important values
 BUILDING

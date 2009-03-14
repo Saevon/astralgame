@@ -1,6 +1,7 @@
 #----------SAMPLE----------#
 "" # Name of the building
-["TYPE"] = "B" OR "AL" OR "BAL" # tells it whether it can be built on astral lines or on building locations, or both
+["TYPE"] = "B" OR "AL" OR "BAL"
+# tells it whether it can be built on astral lines or on building locations, or "blanks"
 ["PRE"] = [""] #Any prerequisites
 ["SYMB"] = "" #The Symbol for the Text version
 # for astral lines show UP down first, then LEFT right
@@ -8,7 +9,7 @@
 # include LR and UD at the beggining of AL, so two of each picture
 ["HP"] = 150 #Hp when built
 ["MAXHP"] = 150 # max possible Hp (not including updates)
-["MP"] = 50 # + MP per turn --- If mana gain is a percentage put "mana_gain * = 1 + (% / 100)"
+["MP"] = 50 # + MP per turn --- If mana gain is a percentage put "#%" wiht a num
 ["RES"] = 0 # any resistance
 ["FIX"] = 2 # cost to fix per Hp point
 ["COST"] = 500 # cost to build
@@ -27,7 +28,7 @@
 ["RES"] = 0
 ["FIX"] = 2
 ["COST"] = 500
-["OPT"] = ["ATTACK: Mana Overload"]
+["OPT"] = [""]
 ["DESC"] = ""
 
 "Astral Line"
@@ -79,9 +80,23 @@
 ["IMAGE"] = []
 ["HP"] = 5
 ["MAXHP"] = 5
-["MP"] = 50
-["RES"] = 0
+["MP"] = 0
+["RES"] = 5
 ["FIX"] = 2
 ["COST"] = 30
+["OPT"] = []
+["DESC"] = ""
+
+"Wall"
+["TYPE"] = "BAL"
+["PRE"] = ["Mining Camp"]
+["SYMB"] = "WWW"
+["IMAGE"] = []
+["HP"] = 10
+["MAXHP"] = 100
+["MP"] = 0
+["RES"] = 0
+["FIX"] = 3
+["COST"] = 25
 ["OPT"] = []
 ["DESC"] = ""

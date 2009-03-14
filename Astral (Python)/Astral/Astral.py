@@ -5,6 +5,7 @@ from SaveLoad import *
 from ConsoleColors import set_color
 from Help import *
 from INFO import *
+from random import randint
 
 # savegame()  options :  (name, info, tocipher = True, loc = getcwd(), ext = ".txt")
 # loadgame()  options :  (name, tocipher = True, loc = getcwd(), ext = ".txt")
@@ -52,7 +53,9 @@ def color_num(color_name):
 
 ################################################################################
 def write_options(options):
-    #first write the options file
+    """write_options(...) --> None
+    Writes the options file for this game, specific format needed
+    options is a list"""
     for line in range(len(options[4])):
         options[4][line] = "<>".join(options[4][line])
     options[4] = " - ".join(options[4])
@@ -149,9 +152,9 @@ def options_menu():
                 options[2] = choice
         ########################################################################
         elif choice == "3":
-            print "\n\n(Max Number is 12)"
+            print "\n\n(Max Number is 9)"
             choice = raw_input("Set New Number of Players\n:")
-            if choice.isdigit() and int(choice) <= 12 and int(choice) > 1:
+            if choice.isdigit() and int(choice) <= 9 and int(choice) > 1:
                 options[3] = choice
                 if len(options[5]) < int(choice):
                     for num in range(int(choice)):
@@ -204,7 +207,7 @@ def options_menu():
             except:raw_input("Load Failed\nPress Enter to Continue")
             
         ########################################################################
-        elif choice != "0" and choice.isdigit():
+        elif choice != "0" and choice.isdigit() and int(choice) < 5 + int(options[3]):
             # Default Player Menu
             player = int(choice) - 5
             while choice != "3":
@@ -357,10 +360,34 @@ while choice != "5" or choice.lower() == "quit":
         
         # makes an empty field
         field = Maze("#")
-        field.clear(options[0], options[1], value = "")           
+        field.clear(options[0], options[1], value = "")
+        if (field.sizey() / 2) % 2 != 0:
+            y_half = (field.sizey()) / 2 - 1
+        else:
+            y_half = field.sizey() - 1
+        if (field.sizex() / 2) % 2 != 0:
+            x_half = field.sizex() / 2 - 1
+        else:
+            x_half = field.sizex() - 2 
+            
+        x = field.sizex()
+        y = field.sizey()
+        usable = [(0,0)] # Bottom Left
+        usable.append((x - 1,y - 1)) # Top Right
+        usable.append((0, y - 1)) # Top Left
+        usable.append((x - 1, 0)) # Bottom Right
+        usable.append((x_half, y_half)) # Middle Middle
+        usable.append((0, y_half)) #Middle Left
+        usable.append((x_half, 0)) # Bottom Middle
+        usable.append((x_half, y - 1)) # Middle Right
+        usable.append((x - 1, y_half)) #Top Middle
+
         for player in range(options[3]):
             exec "player%i = Player(options[5][player][1], options[5][player][0], gold = options[2])" % (player + 1)
-            
+            exec "player%i.add_building(BUILDING['Wizards Cottage'], usable[player][0], usable[player][1])" % (player + 1)
+            field.setcell(usable[player][0], usable[player][1], player + 1)
+        player1.gold += 50
+        
         game = True
         clear()
 ################################################################################
@@ -381,18 +408,6 @@ while choice != "5" or choice.lower() == "quit":
 ################################################################################
     if game:
         
-        #only for testing
-        player1.add_building(BUILDING["Wizards Cottage"], 2, 2)
-        player1.add_building(BUILDING["Village"], 4, 4)
-        field.setcell(2, 2, "1")
-        field.setcell(4, 4, "1")
-        player2.add_building(BUILDING["Astral Line"], 2, 3)
-        field.setcell(2, 3, "2")
-        player1.gold = 500
-        player2.add_building(BUILDING["Astral Line"], 3, 2)
-        field.setcell(3, 2, "2")
-        #only for testing
-        
         #gameplay, options file is in this format:
             # [0] field size, (x)
             # [1] field size, (y)
@@ -412,12 +427,12 @@ while choice != "5" or choice.lower() == "quit":
             ####################################################################
             clear()
             
-            for y_value in range(field.sizex()):
+            for y_value in range(field.sizey() - 1, -1, - 1):
                 #changes numbers to be with 0 at the bottom
-                print "\n%i" % (field.sizex() - y_value - 1),
-                print " " * ( 2 - len(str(int(options[0]) - y_value - 1))),
-                for x_value in range(field.sizey()):
-                    # iff there is a building add its symbol
+                print "\n%i" % (y_value),
+                print " " * ( 2 - len(str(y_value))),
+                for x_value in range(field.sizex()):
+                    # if there is a building add its symbol
                     if field.cell(x_value,y_value) != "":
                         play = int(field.cell(x_value,y_value))
                         # for Astral Lines
@@ -432,8 +447,12 @@ while choice != "5" or choice.lower() == "quit":
                                 sym = sym[1]
                         # for buildings
                         elif "B" in build_type and x_value % 2 == 0 and y_value % 2 == 0:
-                            exec "sym = player%i.buildings[(%i,%i)]['SYMB']" % (play, x_value, y_value)
-                            exec "set_color(color_num(player%i.color))" % (play)
+                            if "AL" in build_type:
+                                exec "sym = player%i.buildings[(%i,%i)]['SYMB'][-1]" % (play, x_value, y_value)
+                                exec "set_color(color_num(player%i.color))" % (play)
+                            else:
+                                exec "sym = player%i.buildings[(%i,%i)]['SYMB']" % (play, x_value, y_value)
+                                exec "set_color(color_num(player%i.color))" % (play)
                         print sym,
                         print "",
                         set_color(COLOR)
@@ -480,24 +499,36 @@ while choice != "5" or choice.lower() == "quit":
             elif continue_option == "build":
                 choice = ""
                 print "got here"
-                while choice != "cancel":
+                while 1:
                     
                     print "%i) %s  - " % (item + 1, name),
                     print BUILDING[ name ]["COST"],
                     print "MP"
                     
                     choice = raw_input("(Type 'cancel' to quit)\n(format: 'x,y')\nSelect Place to Build: ").lower()
+                    if choice == "cancel":
+                        break
                     choice = choice.split(",")
                     # check if input was correct
                     can_build = False
                     if len(choice) == 2 and choice[0].isdigit() and choice[1].isdigit():
                         if field.cell(int(choice[0]), int(choice[1])) == "":
-                            if "B" in BUILDING[temp]["TYPE"] and choice[0] % 2 == 0 and choice[1] % 2 == 0:
+                            choice[0] = int(choice[0])
+                            choice[1] = int(choice[1])
+                            if "B" in BUILDING[name]["TYPE"] and choice[0] % 2 == 0 and choice[1] % 2 == 0:
                                 can_build = True
-                            if "AL" in BUILDING[temp]["TYPE"] and ((choice[0] % 2 != 0 and choice[1] % 2 == 0) or (choice[0] % 2 == 0 and choice[1] % 2 != 0)):
+                            if "AL" in BUILDING[name]["TYPE"] and ((choice[0] % 2 != 0 and choice[1] % 2 == 0) or (choice[0] % 2 == 0 and choice[1] % 2 != 0)):
                                 can_build = True
-                            # it needs to check for where you can actually build
-                            # currently only checks if the square is occupied and if it is the same type of building
+                            exec "allies = player%i.allies" %(play)
+                            try:
+                                if field.cell(choice[0] + 1, choice[1]) not in allies and field.cell(choice[0] - 1, choice[1]) not in allies and field.cell(choice[0] + 1, choice[1]) not in allies and field.cell(choice[0], choice[1] - 1) in allies:
+                                    can_build = False
+                            except:pass
+                            if (choice[0] % 2 != 0 and choice[1] % 2 == 0) or (choice[0] % 2 == 0 and choice[1] % 2 != 0):
+                                try:
+                                    if field.cell(choice[0] + 2, choice[1]) not in allies and field.cell(choice[0] - 2, choice[1]) not in allies and field.cell(choice[0] + 2, choice[1]) not in allies and field.cell(choice[0], choice[1] - 2) in allies:
+                                        can_build = False
+                                except:pass
 
                         if not can_build:
                             set_color(12)
@@ -506,8 +537,11 @@ while choice != "5" or choice.lower() == "quit":
                         
                         if can_build:
                             exec "player%i.gold -= BUILDING[name]['COST']" % (player)
-                            exec "player%i.add_building(BUILDING[name], choice[0], choice[1])"
+                            exec "player%i.add_building(BUILDING[name], choice[0], choice[1])" % (player)
                             field.setcell(choice[0], choice[1], player)
+                            continue_option = False
+                            choice = ""
+                            break
                         
                     else:
                         set_color(12)
@@ -649,14 +683,13 @@ while choice != "5" or choice.lower() == "quit":
                 player += 1
                 if player > int(options[3]):
                     player = 1
-                exec "items = player%i.building.copy()" % (player)
+                exec "items = player%i.buildings.copy()" % (player)
                 mana_gain = 0
                 for item in items:
-                    if items[item]["MP"].isdigit():
+                    if type(items[item]["MP"]) == "str":
                         mana_gain += items[item]["MP"]
                     else:
-                        try:exec items[item]["MP"]
-                        except:pass
+                        mana_gain += items[item]["MP"]
                 exec "player%i.gold += mana_gain" % (player)
                 # add next players Mana, end of turn effects etc.
         
