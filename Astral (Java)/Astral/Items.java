@@ -93,19 +93,25 @@ public class Items {
     try {
       String str;
     String spr = System.getProperty("path.separator");
-    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db", "rw"));
+    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db"), "rw");
     while (((str = in.readLine()).indexOf(x+","+y))==-1) {
-      if (str.eq
     }
     String spaces = "";
-    while (
+    int count1 = 1;
+    while (spaces.length()<str.length()) {
+      spaces = spaces + " ";
+    }
     if (info.equals("erase")) {
       //Erase data from file
-      
+      in.writeChars(spaces);
     } else {
       //Replace data in file
-      
+      in.writeChars(spaces);
+      while (((str = in.readLine()))!=null) {
     }
+      in.writeChars(info);
+    }
+      in.close();
     } catch (IOException e) {
       System.out.println("ERROR READING FILE");
       System.exit(-1);
@@ -116,22 +122,22 @@ public class Items {
     //Reads data about an item from data/items.db
     //Type can be "HP", "player", "symbol", "all"
     //Note: returns "na" if no item is found
+    String value = "";
     try {
       String str;
     String spr = System.getProperty("path.separator");
-    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db", "rw"));
+    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db"), "rw");
     while (((str = in.readLine()).indexOf(x+","+y))==-1) {
     }
     in.close();
-    String value = "";
     if (type.equals("HP")) {
       value = str.substring(str.lastIndexOf(",")+1);
     } else if (type.equals("player")) {
-      value = str.substring(str.IndexOf(";")+3, str.lastIndexOf(";")+4);
+      value = str.substring(str.indexOf(";")+3, str.lastIndexOf(";")+4);
     } else if (type.equals("symbol")) {
       str.substring(str.lastIndexOf(";")+1,str.lastIndexOf(";")+2);
     } else {
-      vlaue = str;
+      value = str;
     }
     } catch (IOException e) {
       System.out.println("ERROR READING FILE");
