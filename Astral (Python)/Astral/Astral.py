@@ -14,12 +14,17 @@ from random import randint
 def clear(num = 15):
     for i in range(num):
         print "\n"
+################################################################################	
 
 game = False       # should the gameplay start?
+fail = False
 MAX_NAME_LEN = 10  # max possible name for a player
 MAX_COLOR_LEN = 10 # max possible name for a color
-COLOR = 15         # the standart Menu coloring
-RESET_OPTIONS = ["15", "15", "0", "4", [["Red", "012"], ["Blue", "009"], ["Green", "010"], ["Yellow", "014"], ["Cyan", "011"], ["Purple", "005"]], [["Player 1", "Red"], ["Player 2", "Blue"], ["Player 3", "Green"], ["Player 4", "Yellow"]]]
+COLOR = 15         # the standard Menu coloring
+
+DMG_COLOR = (80, 64, 112) # colors for hp damage levels
+
+RESET_OPTIONS = ["15", "15", "0", "4", [["Red", "012"], ["Blue", "009"], ["Green", "010"], ["Yellow", "014"], ["Cyan", "011"]], [["Player 1", "Red"], ["Player 2", "Blue"], ["Player 3", "Green"], ["Player 4", "Yellow"]]]
 # what the options file will reset itself to
     # saves it to the options file
     # [0] field size, (x)
@@ -152,9 +157,9 @@ def options_menu():
                 options[2] = choice
         ########################################################################
         elif choice == "3":
-            print "\n\n(Max Number is 9)"
+            print "\n\n(Max Number is 4)"
             choice = raw_input("Set New Number of Players\n:")
-            if choice.isdigit() and int(choice) <= 9 and int(choice) > 1:
+            if choice.isdigit() and int(choice) <= 4 and int(choice) > 1:
                 options[3] = choice
                 if len(options[5]) < int(choice):
                     for num in range(int(choice)):
@@ -322,6 +327,12 @@ def color_options():
                     print "\n"
             raw_input('\n\nPress Enter to Continue')
             
+# BOOKMARKS:
+# Search for it to find commands
+# NEW GAME
+# LOAD GAME
+# GAMEPLAY
+
 # Main Menu, loops until quit
 ################################################################################
 choice = ""
@@ -338,6 +349,8 @@ while choice != "5" or choice.lower() == "quit":
     5) Quit
     """
     choice = raw_input(":")
+    
+#NEW GAME
 ################################################################################
     if choice == "1":
         #creates the battle field
@@ -382,17 +395,25 @@ while choice != "5" or choice.lower() == "quit":
         usable.append((x_half, y - 1)) # Middle Right
         usable.append((x - 1, y_half)) #Top Middle
 
+        ally_invite = {}
         for player in range(options[3]):
-            exec "player%i = Player(options[5][player][1], options[5][player][0], gold = options[2])" % (player + 1)
-            exec "player%i.add_building(BUILDING['Wizards Cottage'], usable[player][0], usable[player][1])" % (player + 1)
+            myself = [player + 1]
+            exec "player%i = Player(%i, options[5][player][1], options[5][player][0], gold = options[2], allies = myself[:])" % (player + 1, player + 1)
+            exec "player%i.add_building(BUILDING['Wizards Cottage'].copy(), usable[player][0], usable[player][1])" % (player + 1)
             field.setcell(usable[player][0], usable[player][1], player + 1)
+            ally_invite[player + 1] = []
         player1.gold += 50
+        player = 1
+        player1.turn = 1
         
         game = True
         clear()
+        
+#LOAD GAME
 ################################################################################
     elif choice == "2":
         print "Under construction!" # if game is loaded 
+        
 ################################################################################
     elif choice == "3":
         options_menu()
@@ -405,7 +426,9 @@ while choice != "5" or choice.lower() == "quit":
         if raw_input("Are you sure you wish to quit?\n(Y/N)\n:").lower() == "n":
             choice = ""
         game = False
-################################################################################
+        
+# GAMEPLAY
+################################################################################  
     if game:
         
         #gameplay, options file is in this format:
@@ -417,49 +440,63 @@ while choice != "5" or choice.lower() == "quit":
             # [5] previously used players, each divided by " - " and in the form "PLAYER NAME<>COLOR NAME"
     
         choice = ""
-        player = 1
+        field.setcell(2,2, 1)
+        player1.add_building(BUILDING["Village"].copy(), 2,2)
         # Loop for all players
         
         continue_option = False
         
-        while choice != "quit" and choice != "q" and choice != "exit":         
+        while choice != "quit" and choice != "q" and choice != "exit":
+            
             # First Show Field
             ####################################################################
-            clear()
+            clear(num = 25)
             
             for y_value in range(field.sizey() - 1, -1, - 1):
                 #changes numbers to be with 0 at the bottom
                 print "\n%i" % (y_value),
                 print " " * ( 2 - len(str(y_value))),
                 for x_value in range(field.sizex()):
+                    color_add = 0
                     # if there is a building add its symbol
                     if field.cell(x_value,y_value) != "":
                         play = int(field.cell(x_value,y_value))
-                        # for Astral Lines
-                        exec "build_type =player%i.buildings[(%i,%i)]['TYPE']" % (play, x_value, y_value)
+                        exec "build_type = player%i.buildings[(%i,%i)]['TYPE'][:]" % (play, x_value, y_value)
                         sym = " "
+                        # to show degree of damage
+                        hp = 100
+                        try:exec "hp = int(float(player%i.buildings[(%i,%i)]['HP']) / player%i.buildings[(%i,%i)]['MAXHP'] * 100)" % (play, x_value, y_value, play, x_value, y_value)
+                        except:pass
+                        if hp >= 100:color_add = 0
+                        elif hp <= 99 and hp >= 66:color_add = DMG_COLOR[0]
+                        elif hp <= 65 and hp >= 33:color_add = DMG_COLOR[1]
+                        elif hp <= 32:color_add = DMG_COLOR[2]
+                        
+                        # for Astral Lines
                         if "AL" in build_type and ((x_value % 2 == 0 and y_value % 2 != 0) or (x_value % 2 != 0 and y_value % 2 == 0)):
                             exec "sym = player%i.buildings[(%i,%i)]['SYMB']" % (play, x_value, y_value)
-                            exec "set_color(color_num(player%i.color))" % (play)
+                            exec "set_color(color_add + color_num(player%i.color))" % (play)
                             if (x_value % 2 == 0 and y_value % 2 != 0):
                                 sym = sym[0]
                             elif (x_value % 2 != 0 and y_value % 2 == 0):
                                 sym = sym[1]
+                                
                         # for buildings
                         elif "B" in build_type and x_value % 2 == 0 and y_value % 2 == 0:
                             if "AL" in build_type:
                                 exec "sym = player%i.buildings[(%i,%i)]['SYMB'][-1]" % (play, x_value, y_value)
-                                exec "set_color(color_num(player%i.color))" % (play)
+                                exec "set_color(color_add + color_num(player%i.color))" % (play)
                             else:
                                 exec "sym = player%i.buildings[(%i,%i)]['SYMB']" % (play, x_value, y_value)
-                                exec "set_color(color_num(player%i.color))" % (play)
+                                exec "set_color(color_add + color_num(player%i.color))" % (play)
                         print sym,
                         print "",
                         set_color(COLOR)
+                        
                     #if there is no building add 'empty' symbols for each square
                     elif x_value % 2 == 0 and y_value % 2 == 0:
                         # location for buildings
-                        print "#",
+                        print ".",
                         print "",
                     elif x_value % 2 != 0 and y_value % 2 != 0:
                         # location for nothing...
@@ -467,7 +504,7 @@ while choice != "5" or choice.lower() == "quit":
                         print "",
                     else:
                         # location for empty astral lines
-                        print ".",
+                        print " ",
                         print "",
             
             # adds bottom numbers
@@ -487,77 +524,103 @@ while choice != "5" or choice.lower() == "quit":
             print "COLOR"
             set_color(COLOR)
             
+            print "    Turn:",
+            exec 'print player%i.turn' % (player)
+            
             # possible choice for player input
             ####################################################################
             if not continue_option:
-                print "\n"
-                print "\nType 'help' for general help with the game"
-                choice = raw_input(": ").lower()
+                # if the person misspelled somethin, not a known combination
+                if fail:
+                    set_color(012)
+                    print ""
+                    print "< This Was not a Known Key Combination, Please Check Your Spelling >",
+                    set_color(COLOR)
+                    fail = False
+                print "\n\n",
+                print "Type 'help' for general help with the game"
+                choice = raw_input(": ")
               
             # if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
             ####################################################################
             elif continue_option == "build":
                 choice = ""
-                print "got here"
+                exec "allies = player%i.allies[:]" %(player)
+                for ally in allies:
+                    exec "other_ally_list = player%i.allies[:]" % (ally)
+                    if player not in other_ally_list:
+                        allies.remove(ally)
+                if player not in allies:
+                    allies.append(player)
+                allies.sort()
+                print allies, type(allies)
+                print play, type(player)
                 while 1:
                     
-                    print "%i) %s  - " % (item + 1, name),
+                    print ""
+                    print "%s  - " % (name),
                     print BUILDING[ name ]["COST"],
                     print "MP"
                     
                     choice = raw_input("(Type 'cancel' to quit)\n(format: 'x,y')\nSelect Place to Build: ").lower()
-                    if choice == "cancel":
+                    if choice == "cancel" or choice == "quit" or choice == "q" or choice == "exit":
+                        continue_option = False
                         break
                     choice = choice.split(",")
                     # check if input was correct
                     can_build = False
                     if len(choice) == 2 and choice[0].isdigit() and choice[1].isdigit():
                         if field.cell(int(choice[0]), int(choice[1])) == "":
-                            choice[0] = int(choice[0])
-                            choice[1] = int(choice[1])
-                            if "B" in BUILDING[name]["TYPE"] and choice[0] % 2 == 0 and choice[1] % 2 == 0:
-                                can_build = True
-                            if "AL" in BUILDING[name]["TYPE"] and ((choice[0] % 2 != 0 and choice[1] % 2 == 0) or (choice[0] % 2 == 0 and choice[1] % 2 != 0)):
-                                can_build = True
-                            exec "allies = player%i.allies" %(play)
-                            try:
-                                if field.cell(choice[0] + 1, choice[1]) not in allies and field.cell(choice[0] - 1, choice[1]) not in allies and field.cell(choice[0] + 1, choice[1]) not in allies and field.cell(choice[0], choice[1] - 1) in allies:
-                                    can_build = False
-                            except:pass
-                            if (choice[0] % 2 != 0 and choice[1] % 2 == 0) or (choice[0] % 2 == 0 and choice[1] % 2 != 0):
-                                try:
-                                    if field.cell(choice[0] + 2, choice[1]) not in allies and field.cell(choice[0] - 2, choice[1]) not in allies and field.cell(choice[0] + 2, choice[1]) not in allies and field.cell(choice[0], choice[1] - 2) in allies:
-                                        can_build = False
-                                except:pass
-
+                            x = int(choice[0])
+                            y = int(choice[1])
+                            # if it is a building check only adjacent spots
+                            if "B" in BUILDING[name]["TYPE"] and x % 2 == 0 and y % 2 == 0:
+                                if field.cell(x+1,y) in allies or field.cell(x-1,y) in allies or field.cell(x,y+1) in allies or field.cell(x,y-1) in allies:
+                                    can_build = True
+                            # if it is an AL check adjacent, and spots connected by other AL's
+                            if "AL" in BUILDING[name]["TYPE"] and not can_build:
+                                if field.cell(x+1,y) in allies or field.cell(x-1,y) in allies or field.cell(x,y+1) in allies or field.cell(x,y-1) in allies:
+                                    can_build = True
+                                elif field.cell(x+1,y+1) in allies or field.cell(x-1,y-1) in allies or field.cell(x-1,y+1) in allies or field.cell(x+1,y-1) in allies:
+                                    can_build = True
+                                elif (x % 2 == 0 and y % 2 != 0) and (field.cell(x,y+2) in allies or field.cell(x,y-2) in allies):
+                                    can_build = True
+                                elif (x % 2 != 0 and y % 2 == 0) and (field.cell(x+2,y) in allies or field.cell(x-2,y) in allies):
+                                    can_build = True
+                            if x % 2 != 0 and y % 2 != 0:
+                                can_build = False
+                            
                         if not can_build:
                             set_color(12)
                             print "Square Not Possible"
+                            raw_input("Press Enter to Continue: ")
                             set_color(COLOR)
+                            break
                         
-                        if can_build:
+                        else:
                             exec "player%i.gold -= BUILDING[name]['COST']" % (player)
-                            exec "player%i.add_building(BUILDING[name], choice[0], choice[1])" % (player)
-                            field.setcell(choice[0], choice[1], player)
+                            exec "player%i.add_building(BUILDING[name].copy(), x, y)" % (player)
+                            field.setcell(x, y, player)
                             continue_option = False
-                            choice = ""
                             break
                         
                     else:
                         set_color(12)
-                        print "Wrong Format"
+                        print "\nWrong Format"
+                        raw_input("Press Enter to Continue: ")
                         set_color(COLOR)
+                        break
                     
                 choice = ""
-                continue_option = False
+                
             
             ####################################################################
-            if choice[:4] == "help":
+            if len(choice) >= 4 and choice[:4].lower() == "help":
                 help_menu(choice)
             
             #Build Menu
             ####################################################################
-            elif choice == "build":
+            elif choice.lower() == "build":
                 exec "temp = player%i.poss_building()" % (player)
                 build_choice = ""
                 name = ""
@@ -640,9 +703,12 @@ while choice != "5" or choice.lower() == "quit":
                             print "DMG"
                         print "Cost to Fix 1 HP:   ",
                         print BUILDING[name]["FIX"]
+                        print ""
+                        print BUILDING[name]["DESC"]
+                        
                         
                         print ""
-                        if BUILDING[ temp[int(build_choice) - 1] ]["COST"] < cur_gold:
+                        if BUILDING[ temp[int(build_choice) - 1] ]["COST"] <= cur_gold:
                             print "1) Build"
                         else:
                             set_color(12)
@@ -650,13 +716,210 @@ while choice != "5" or choice.lower() == "quit":
                             set_color(COLOR)
                         print "0) Cancel"
                         build_choice = raw_input("\n: ").lower()
-                        if build_choice == "1" and BUILDING[name]["COST"] < cur_gold:
+                        if build_choice == "1" and BUILDING[name]["COST"] <= cur_gold:
                             continue_option = "build"
                             build_choice = "0"
+                            
+            # for the build menu if no long list of options is needed
+            ####################################################################
+            elif len(choice) >= 4 and choice[:5].lower() == "build":
+                #splits off the name part, and capitalizes it
+                choice = choice[6:]
+                choice = choice.split(" ")
+                name = ""
+                for line in range(len(choice)):
+                    name += choice[line].capitalize()
+                    name += " "
+                name = name[:-1]
+                # Finds possible buildings, then checks if there is such a building, and if it is possible to build it
+                exec "temp = player%i.poss_building()" % (player)
+                exec "cur_gold = player%i.gold" % (player)
+                
+                # Syntax Error Messages
+                if name not in BUILDING:
+                    set_color(12)
+                    raw_input("Not Possible Building\n\nPress Enter to Continue: ")
+                    set_color(COLOR)
+                
+                elif name not in temp:
+                    set_color(12)
+                    raw_input("Pre-requisites not met\n\nPress Enter to Continue: ")
+                    set_color(COLOR)
+                
+                elif cur_gold < BUILDING[name]["COST"]:
+                    set_color(12)
+                    raw_input("Not Enough Mana\n\nPress Enter to Continue: ")
+                    set_color(COLOR)
+                    
+                else:
+                    continue_option = "build"
+                    choice = ""   
             
+            # Shows stats of buildings
+            ####################################################################
+            elif len(choice) >= 5 and choice[:5].lower() == "stats":
+                choice = choice.split(" ")
+                if len(choice) == 2:
+                    choice[1] = choice[1].split(",")
+                    if len(choice[1]) == 2 and choice[1][0].isdigit() and choice[1][1].isdigit():
+                        choice[1][0] = int(choice[1][0])
+                        choice[1][1] = int(choice[1][1])
+                        loc_player = field.cell(choice[1][0], choice[1][1])
+                        if loc_player != "":
+                            exec "people = player%i.allies" % (loc_player)
+                            exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (loc_player)
+                            if player in people or player == loc_player:
+                                #Displays stats
+                                clear()
+                                print "--> %s <--" % (loc_building["NAME"])
+                                # the place it can be built on
+                                print "Type:"
+                                if "AL" in loc_building["TYPE"]:
+                                    print "    Astral Line"
+                                if "B" in loc_building["TYPE"]:
+                                    print "    Building"
+        
+                                if len(loc_building["PRE"]) > 0:
+                                    print "\nPre-requisites:"
+                                    for item in loc_building["PRE"]:
+                                        print " -> " + item
+                                    print ""
+                                # for astral lines to show the two symbol types
+                                if "AL" in loc_building["TYPE"] and "B" not in loc_building["TYPE"]:
+                                    print "Symbol - Horizontal:",
+                                    set_color(color_num(player_color))
+                                    print loc_building["SYMB"][0]
+                                    set_color(COLOR)
+                                    print "Symbol - Vertical:  ",
+                                    set_color(color_num(player_color))
+                                    print loc_building["SYMB"][1]
+                                    set_color(COLOR)
+                                # to show the type of symbol if it is a building
+                                else:
+                                    print "Symbol :            ",
+                                    set_color(color_num(player_color))
+                                    print loc_building["SYMB"]
+                                    set_color(COLOR)
+                                #print "",
+                                #print loc_building["IMAGE"]
+                                # for when images are implemented
+                                print "HP:                 ",
+                                print loc_building["HP"],
+                                print "/",
+                                print loc_building["MAXHP"]
+                                if loc_building["MP"] > 0:
+                                    print "MP Per Turn:       +",
+                                    print loc_building["MP"],
+                                    print "MP"
+                                if loc_building["RES"] > 0:
+                                    print "Resistance:         ",
+                                    print loc_building["RES"],
+                                    print "DMG"
+                                print "Cost to Fix 1 HP:   ",
+                                print loc_building["FIX"]
+                                print ""
+                                print loc_building["DESC"]
+                                
+                                
+                                print ""
+                                if loc_building["FIX"] < cur_gold and loc_building["HP"] != loc_building["MAXHP"]:
+                                    print "1) Fix"
+                                    print "2) Max Possible Fix"
+                                
+                                for item in range(len(loc_building["OPT"])):
+                                    if loc_building["OPT"][item] not in loc_building["OPT-DONE"]:
+                                        print "%i) %s" % (item + 3, loc_building["OPT"][item]),
+                                        print ": COST " + str(RESEARCH[loc_building["OPT"][item]]["COST"]) + " MP"
+                                    else:print ""
+                                
+                                print "0) Cancel"
+                                stats_choice = raw_input("\n: ").lower()
+                                if stats_choice == "1" and loc_building["HP"] != loc_building["MAXHP"]:
+                                    pass
+                                elif stats_choice == "2" and loc_building["HP"] != loc_building["MAXHP"]:
+                                    max_fix = (cur_gold / loc_building["FIX"])
+                                    max_hp = loc_building["MAXHP"] - loc_building["HP"]
+                                    if max_hp != 0:
+                                        pass
+
+                else:fail = True
+                choice = ""
+
+            # changes of alliances menu
+            ####################################################################
+            elif len(choice) >= 4 and choice[:4].lower() == "ally":
+                people = {}
+                for person in Player.live_players:
+                    exec "people[player%s.name] = person" % (person)
+                choice = choice.split(" ")
+                if len(choice[0]) >= 5:
+                    choice.append( choice[0][4] )
+                name = ""
+                exec "allies = player%i.allies[:]" % (player)
+                while len(choice) < 2 and name != "q" and name != "quit" and name != "cancel" and name != "exit":
+                    clear()
+                    exec "allies = player%i.allies[:]" % (player)
+                    # shows the current players
+                    for person in Player.live_players:
+                        print ""
+                        exec "print player%s.name"  % (person)
+                        exec "set_color(color_num(player%s.color))"  % (person)
+                        print "    COLOR"
+                        set_color(COLOR)
+                        if person in allies:
+                            print "    ALLY"
+                        else:
+                            print "    ENEMY"
+                    
+                    name = raw_input("(EXACT name is required)\n(Type cancel to quit)\nChange Which Player: ")
+                    if name not in people.keys():
+                        set_color(012)
+                        print "Not a Player"
+                        set_color(COLOR)
+                    else:
+                        choice.append(name)
+                        name = ""
+                if len(choice) < 2 or choice[1] not in people.keys():
+                    set_color(012)
+                    print "Not a Player"
+                    set_color(COLOR)
+                else:                
+                    if len(choice) < 3:
+                        print ""
+                        print choice[1]
+                        exec "set_color(color_num(player%s.color))" % (people[choice[1]])
+                        print "    COLOR"
+                        set_color(COLOR)
+                        if people[choice[1]] in allies:
+                            print "    ALLY"
+                            name = raw_input("Do you wish to remove(-) him as an ally?\n:")
+                        else:
+                            print "    ENEMY"
+                            name = raw_input("Do you wish to add(+) him as an ally?\n:")
+                        if name in "+-":
+                            choice.append(name)
+                        else: name = ""
+                    if len(choice) >= 3 and choice[2] in "+-":
+                        if choice[2] == "+" and people[choice[1]] not in allies:
+                            if player * -1 in ally_invite[people[choice[1]]]:
+                                ally_invite[people[choice[1]]].remove(player * -1)
+                            ally_invite[people[choice[1]]].append(player)
+                            exec "player%i.add_ally(people[choice[1]])" % (player)
+                        elif choice[2] == "-" and people[choice[1]] in allies:
+                            if people[choice[1]] != player:
+                                ally_invite[people[choice[1]]].append(-1 * player)
+                                if player in ally_invite[people[choice[1]]]:
+                                    ally_invite[people[choice[1]]].remove(player)
+                            exec "player%i.remove_ally(people[choice[1]])" % (player)
+                    else:
+                        set_color(012)
+                        print "Format Error Try Again"
+                        set_color(COLOR)
+                choice = ""
+
             #Console
             ####################################################################
-            elif choice == "~" and raw_input("There is NO console in this game\n:Press Enter to Continue:") == "~":
+            elif choice.lower() == "~" and raw_input("There is NO console in this game\n:Press Enter to Continue:") == "~":
                 clear()
                 console_choice = "start"
                 while console_choice != "" or console_choice != (" " * len(console_choice)):
@@ -673,16 +936,21 @@ while choice != "5" or choice.lower() == "quit":
                             if loop_num < 0:
                                 break
                             temp = raw_input("..." * (loop_num + 1) + " ")
-                    try:exec console_choice
-                    except:print "Error!\n"
+                    try:
+                        exec console_choice
+                    except:
+                        print "Error!\n"
                 clear(100)
                     
             #End Turn
             ####################################################################
-            elif choice == "end turn":
+            elif choice.lower() == "end turn" or choice.lower() == "done":
+                # changes to next player
                 player += 1
                 if player > int(options[3]):
                     player = 1
+
+                # adds mana to the next player
                 exec "items = player%i.buildings.copy()" % (player)
                 mana_gain = 0
                 for item in items:
@@ -691,6 +959,56 @@ while choice != "5" or choice.lower() == "quit":
                     else:
                         mana_gain += items[item]["MP"]
                 exec "player%i.gold += mana_gain" % (player)
-                # add next players Mana, end of turn effects etc.
+                
+                # shows any alliance cancellations and invitations
+                for person in ally_invite[player]:
+                    exec "name = player%i.name" % (person)
+                    # player information, gold, color, whose turn it is
+                    print "\n\n\n\n\n"
+                    exec "player_color = player%i.color" % (player)
+                    exec "player_name = player%i.name" % (player)
+                    print "    %s  - " % (player_name),
+                    set_color(color_num(player_color))
+                    print "COLOR"
+                    set_color(COLOR)
+            
+                    if person >= 0:
+                        print '%s wants to invite you to an alliance.' % (name)
+                        exec "set_color(color_num(player%s.color))" % (person)
+                        print "COLOR"
+                        set_color(COLOR)
+                        yn_choice = raw_input("Do you wish to ally with him? (Y/N)\n: ").lower()
+                        if yn_choice == "y":
+                            exec "player%i.add_ally(person)" % (player)
+                    elif person < 0:
+                        person = person * -1
+                        print '%s has cancelled your allience.' % (name)
+                        exec "set_color(color_num(player%s.color))" % (person)
+                        print "COLOR"
+                        set_color(COLOR)
+                        yn_choice = raw_input("Do you wish to remain an ally to him? (Y/N)\n: ").lower()
+                        if yn_choice == "n":
+                            exec "player%i.remove_ally(person)" % (player)
+                ally_invite[player] = []
+                
+                # adds 1 turn to next player
+                exec "player%i.trun += 1" % (player)
+                #adds score
+                # UPDATE
+
+            # checks if the player truly wants to exit
+            ####################################################################
+            elif choice.lower() == "quit" or choice.lower() == "q" or choice.lower() == "exit":  
+                set_color(12)
+                if raw_input("\nAre You Sure You Wish to Exit? (Y/N)\n:").lower() != "y":
+                    choice = ""
+                    game = False
+                set_color(COLOR)
+                
+            # if the person misspelled somethin, not a known combination
+            ####################################################################
+            elif choice.lower() == "":pass
+            else:
+                fail = True
         
         

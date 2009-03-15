@@ -17,6 +17,7 @@ for item in build:
     for val in range(1, len(item)):
         exec "temp%s" % (item[val])
     temp["NAME"] = item[0].strip('"').strip("'")
+    temp["OPT-DONE"] = []
     BUILDING[item[0].strip('"').strip("'")] = temp.copy()
     
 RESEARCH = {}

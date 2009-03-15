@@ -1,7 +1,11 @@
 from INFO import *
 
 class Player():
-    def __init__(self, color, name, gold = 0, allies = [], research = [], attacks = {}, buildings = {}, build_list = {}):
+    
+    live_players = []
+
+    def __init__(self, instance_name, color, name, gold = 0, allies = [], research = [], attacks = {}, buildings = {}, build_list = {}, turn = 0, score = 0):
+        Player.live_players.append(instance_name)
         self.gold = gold
         self.color = color
         self.name = name
@@ -10,7 +14,9 @@ class Player():
         self.attacks = attacks.copy()
         self.buildings = buildings.copy()
         self.build_list = build_list.copy()
-        
+        self.turn = turn
+        self.score = score
+
     def add_ally(self, player):
         self.allies.append(player)
         self.allies.sort()
@@ -59,10 +65,11 @@ class Player():
         Returns all possible research items whoses pre-requisites have been met"""
         possible = []
         for item in RESEARCH:
-            for prequisite in RESEARCH[item]["PRE"]:
-                if prequisite in self.build_list.keys() or prequisite in self.research:
-                    possible.append(item.strip('"').strip("'"))
-                    break
+            if "SPECIAL" not in item:
+                for prequisite in RESEARCH[item]["PRE"]:
+                    if prequisite in self.build_list.keys() or prequisite in self.research:
+                        possible.append(item.strip('"').strip("'"))
+                        break
             if len(RESEARCH[item]["PRE"]) == 0:
                 possible.append(item.strip('"').strip("'"))
         return possible
@@ -83,15 +90,14 @@ class Player():
     
     
 if __name__ == "__main__":
-    player1 = Player("Red", "SirJ", research = ['RESEARCH: Gem Mining'])
+    player1 = Player(1, "Red", "SirJ", research = ['RESEARCH: Gem Mining'])
     player1.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 10, 10)
     player1.add_building({"NAME" : "Village", "RES" : 10, "PRE" : []}, 9, 10)
     player1.dest_building(10,10)
-    player2 = Player("Blue", "Dim")
-    player2.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 9, 10)
-    player2.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 6, 7)
-    player2.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 4, 9)
-    player2.add_building({"NAME" : "Mining Camp", "RES" : 10, "PRE" : []}, 1, 2)
+    player2 = Player(2, "Blue", "Dim")
+    player1.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 6, 7)
+    player2.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 4, 7)
+    player1.add_building({"NAME" : "Mining Camp", "RES" : 10, "PRE" : []}, 1, 2)
     player1.capt_building(4, 7, player2)
     
     print player1.build_list

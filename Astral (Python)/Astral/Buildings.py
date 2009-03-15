@@ -28,7 +28,7 @@
 ["RES"] = 0
 ["FIX"] = 2
 ["COST"] = 500
-["OPT"] = [""]
+["OPT"] = []
 ["DESC"] = ""
 
 "Astral Line"
@@ -48,7 +48,7 @@
 "Village"
 ["TYPE"] = "B"
 ["PRE"] = []
-["SYMB"] = "V"
+["SYMB"] = "^"
 ["IMAGE"] = []
 ["HP"] = 10
 ["MAXHP"] = 10
@@ -56,7 +56,7 @@
 ["RES"] = 0
 ["FIX"] = 2
 ["COST"] = 30
-["OPT"] = []
+["OPT"] = ["SPECIAL: Build Village Schools"]
 ["DESC"] = ""
 
 "Mining Camp"
@@ -70,13 +70,13 @@
 ["RES"] = 5
 ["FIX"] = 3
 ["COST"] = 50
-["OPT"] = ["RESEARCH: Gem Mining"]
+["OPT"] = []
 ["DESC"] = ""
 
 "Void Crystal"
 ["TYPE"] = "B"
 ["PRE"] = ["RESEARCH: Gem Mining"]
-["SYMB"] = "O"
+["SYMB"] = "X"
 ["IMAGE"] = []
 ["HP"] = 5
 ["MAXHP"] = 5

@@ -26,6 +26,10 @@ class Maze():
         print " "
     
     def cell(self, x_val, y_val):
+        if x_val >= self.sizex() or x_val < 0:
+            return ""
+        if y_val >= self.sizey() or y_val < 0:
+            return ""
         return self.maze[len(self.maze) - y_val - 1][x_val]
     
     def setcell(self, x_val, y_val, value):
