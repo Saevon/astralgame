@@ -327,11 +327,24 @@ def color_options():
                     print "\n"
             raw_input('\n\nPress Enter to Continue')
             
+
 # BOOKMARKS:
 # Search for it to find commands
 # NEW GAME
 # LOAD GAME
 # GAMEPLAY
+# SHOW FIELD
+# PLAYER INFO
+# FIX CONTINUE
+# BUILD CONTINUE
+# BUILD
+# BUILD PART 2
+# STATS
+# ALLY-MENU
+# TRIBUTE
+# FIX
+# CONSOLE
+# END TURN
 
 # Main Menu, loops until quit
 ################################################################################
@@ -440,15 +453,17 @@ while choice != "5" or choice.lower() == "quit":
             # [5] previously used players, each divided by " - " and in the form "PLAYER NAME<>COLOR NAME"
     
         choice = ""
+        max_heal = 0
         field.setcell(2,2, 1)
         player1.add_building(BUILDING["Village"].copy(), 2,2)
+        player1.buildings[ (2,2) ]["HP"] = 2
         # Loop for all players
         
         continue_option = False
         
         while choice != "quit" and choice != "q" and choice != "exit":
             
-            # First Show Field
+            # SHOW FIELD
             ####################################################################
             clear(num = 25)
             
@@ -512,6 +527,7 @@ while choice != "5" or choice.lower() == "quit":
             for x_value in range(field.sizey()):
                 print str(x_value) + " " * (2 - len(str(x_value))),
 
+            # PLAYER INFO
             # player information, gold, color, whose turn it is
             print "\n"
             exec "player_color = player%i.color" % (player)
@@ -541,7 +557,39 @@ while choice != "5" or choice.lower() == "quit":
                 print "Type 'help' for general help with the game"
                 choice = raw_input(": ")
               
-            # if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
+            # FIX CONTINUE
+            #if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
+            ####################################################################  
+            elif continue_option == "fix":
+                exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
+                if max_heal == 0:
+                    while max_heal != "cancel":
+                        max_heal = raw_input("Type Cancel to continue\nHeal How Much HP?\n: ")
+                        if max_heal.isdigit():
+                            max_heal = int(max_heal)
+                            break
+                elif max_heal == "max":
+                    max_fix = (cur_gold / loc_building["FIX"])
+                    max_hp = loc_building["MAXHP"] - loc_building["HP"]
+                    if max_hp - max_fix < 0: max_heal = max_hp
+                    elif max_hp - max_fix > 0: max_heal = max_fix
+                if max_heal * loc_building["FIX"] <= cur_gold:
+                    exec "player%i.buildings[ (choice[1][0], choice[1][1]) ]['HP'] += max_heal" % (player)
+                    exec "player%i.gold -= max_heal * loc_building['FIX']" % (player)
+                    print "You healed: %i HP" % (max_heal)
+                    print "Using       %i MP" % (max_heal * loc_building["FIX"])
+                    print "LOC:        (%i,  %i)" % (choice[1][0], choice[1][1])
+                    print "NEW HP:    ",
+                    exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
+                    print loc_building["HP"],
+                    print "/",
+                    print loc_building["MAXHP"]
+                    raw_input("Press Enter to Continue: ")
+                continue_option = False
+                choice = ""
+            
+            # BUILD CONTINUE
+            #if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
             ####################################################################
             elif continue_option == "build":
                 choice = ""
@@ -613,12 +661,12 @@ while choice != "5" or choice.lower() == "quit":
                     
                 choice = ""
                 
-            
+            # HELP
             ####################################################################
             if len(choice) >= 4 and choice[:4].lower() == "help":
                 help_menu(choice)
             
-            #Build Menu
+            #BUILD
             ####################################################################
             elif choice.lower() == "build":
                 exec "temp = player%i.poss_building()" % (player)
@@ -720,6 +768,7 @@ while choice != "5" or choice.lower() == "quit":
                             continue_option = "build"
                             build_choice = "0"
                             
+            # BUILD PART 2
             # for the build menu if no long list of options is needed
             ####################################################################
             elif len(choice) >= 4 and choice[:5].lower() == "build":
@@ -755,6 +804,7 @@ while choice != "5" or choice.lower() == "quit":
                     continue_option = "build"
                     choice = ""   
             
+            # STATS UPDATE
             # Shows stats of buildings
             ####################################################################
             elif len(choice) >= 5 and choice[:5].lower() == "stats":
@@ -832,19 +882,27 @@ while choice != "5" or choice.lower() == "quit":
                                         print ": COST " + str(RESEARCH[loc_building["OPT"][item]]["COST"]) + " MP"
                                     else:print ""
                                 
-                                print "0) Cancel"
+                                print "\n0) Cancel"
                                 stats_choice = raw_input("\n: ").lower()
-                                if stats_choice == "1" and loc_building["HP"] != loc_building["MAXHP"]:
-                                    pass
-                                elif stats_choice == "2" and loc_building["HP"] != loc_building["MAXHP"]:
-                                    max_fix = (cur_gold / loc_building["FIX"])
-                                    max_hp = loc_building["MAXHP"] - loc_building["HP"]
-                                    if max_hp != 0:
+                                if stats_choice.isdigit():
+                                    stats_choice = int(stats_choice)
+                                else:
+                                    stats_choice = 0
+                                if stats_choice == 1 and loc_building["HP"] != loc_building["MAXHP"]:
+                                    continue_option = "fix" 
+                                    max_heal = 0
+                                            
+                                elif stats_choice == 2 and loc_building["HP"] != loc_building["MAXHP"]:
+                                    continue_option = "fix"
+                                    max_heal = "max"
+                                    
+                                elif stats_choice > 2 and stats_choice <= range(len(loc_building["OPT"])):
+                                    if loc_building["OPT"][stats_choice] not in loc_building["OPT-DONE"]:
                                         pass
-
+                                        # Research for options for these buildings
                 else:fail = True
-                choice = ""
 
+            # ALLY-MENU
             # changes of alliances menu
             ####################################################################
             elif len(choice) >= 4 and choice[:4].lower() == "ally":
@@ -917,7 +975,65 @@ while choice != "5" or choice.lower() == "quit":
                         set_color(COLOR)
                 choice = ""
 
-            #Console
+            # TRIBUTE
+            ####################################################################
+            elif len(choice) >= 7 and choice.lower()[:7] == "tribute":
+                people = {}
+                for person in Player.live_players:
+                    exec "people[player%s.name] = person" % (person)
+                choice = choice.split(" ")
+                if len(choice) < 2:
+                    choice.append("")
+                name = ""
+                while choice[1] not in people.keys():
+                    for person in people.keys():
+                        print ""
+                        exec "print player%s.name"  % (people[person])
+                        exec "set_color(color_num(player%s.color))"  % (people[person])
+                        print "    COLOR"
+                        set_color(COLOR)
+                    print "\nMake sure to check name spelling."
+                    name = raw_input("(EXACT name)\n('Cancel to quit')\nTribute Which Player: ")
+                    if name == "cancel" or name == "q":
+                        break
+                    choice[1] = name
+                if len(choice) < 3:
+                    choice.append(cur_gold + 1)
+                elif type(choice[2]) == type("") and choice[2].isdigit():
+                    choice[2] = int(choice[2])
+                elif type(choice[2]) != type(0):
+                    choice[2] = cur_gold + 1
+                while int(choice[2]) > cur_gold and name != "cancel" and name != "q":
+                    print "(Type cancel to quit)"
+                    exec "cur_gold = player%i.gold" % (player)
+                    print "MANA: " + str(cur_gold)
+                    choice[2] = raw_input("How Much: ")
+                    if choice[2] == "cancel" or choice[2] == "q":break
+                    if not choice[2].isdigit():
+                        choice[2] = cur_gold + 1
+                if name != "cancel" and name != "q" and choice[2] != "cancel" and choice[2] != "q":
+                    exec "player%i.gold += int(choice[2])" % (people[choice[1]])
+                    exec "player%i.gold -= int(choice[2])" % (player)
+            
+            # FIX
+            ####################################################################
+            elif len(choice) >= 3 and choice[:3] == "fix":
+                choice = choice.split(" ")
+                if len(choice) == 3:
+                    choice[1] = choice[1].split(",")
+                    if len(choice[1]) == 2 and choice[1][0].isdigit() and choice[1][1].isdigit():
+                        choice[1][0] = int(choice[1][0])
+                        choice[1][1] = int(choice[1][1])
+                        if choice[2].isdigit():
+                            choice[2] = int(choice[2])
+                            continue_option = "fix"
+                            max_heal = choice[2]
+                        elif choice[2] == "max":
+                            max_heal = "max"
+                            continue_option = "fix"
+                    
+            
+            # CONSOLE
             ####################################################################
             elif choice.lower() == "~" and raw_input("There is NO console in this game\n:Press Enter to Continue:") == "~":
                 clear()
@@ -942,7 +1058,7 @@ while choice != "5" or choice.lower() == "quit":
                         print "Error!\n"
                 clear(100)
                     
-            #End Turn
+            #END TURN
             ####################################################################
             elif choice.lower() == "end turn" or choice.lower() == "done":
                 # changes to next player
@@ -962,7 +1078,8 @@ while choice != "5" or choice.lower() == "quit":
                 
                 # shows any alliance cancellations and invitations
                 for person in ally_invite[player]:
-                    exec "name = player%i.name" % (person)
+                    if person >= 0:exec "name = player%i.name" % (person)
+                    else: exec "name = player%i.name" % (person * -1)
                     # player information, gold, color, whose turn it is
                     print "\n\n\n\n\n"
                     exec "player_color = player%i.color" % (player)
@@ -992,7 +1109,7 @@ while choice != "5" or choice.lower() == "quit":
                 ally_invite[player] = []
                 
                 # adds 1 turn to next player
-                exec "player%i.trun += 1" % (player)
+                exec "player%i.turn += 1" % (player)
                 #adds score
                 # UPDATE
 

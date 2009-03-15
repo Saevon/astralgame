@@ -22,7 +22,8 @@ class Player():
         self.allies.sort()
 
     def remove_ally(self,player):
-        self.allies.remove(player)
+        if player in self.allies:
+            self.allies.remove(player)
         
     def dest_building(self, x_loc, y_loc):
         """dest_building(...) --> None
