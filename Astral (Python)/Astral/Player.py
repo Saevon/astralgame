@@ -5,14 +5,14 @@ class Player():
     
     live_players = []
 
-    def __init__(self, instance_name, color, name, gold = 0, allies = [], research = [], attacks = {}, buildings = {}, build_list = {}, turn = 0, score = 0):
+    def __init__(self, instance_name, color, name, gold = 0, allies = [], research = {}, attacks = {}, buildings = {}, build_list = {}, turn = 0, score = 0):
         Player.live_players.append(instance_name)
         self.instance = instance_name
         self.gold = gold
         self.color = color
         self.name = name
         self.allies = allies
-        self.research = research[:]
+        self.research = research.copy()
         self.attacks = attacks.copy()
         self.buildings = buildings.copy()
         self.build_list = build_list.copy()
@@ -72,8 +72,9 @@ class Player():
             if "SPECIAL" not in item:
                 for prequisite in RESEARCH[item]["PRE"]:
                     if prequisite in self.build_list.keys() or prequisite in self.research:
-                        possible.append(item.strip('"').strip("'"))
-                        break
+                        if item not in self.research:
+                            possible.append(item.strip('"').strip("'"))
+                            break
             if len(RESEARCH[item]["PRE"]) == 0:
                 possible.append(item.strip('"').strip("'"))
         return possible
@@ -101,7 +102,7 @@ class Player():
     
     
 if __name__ == "__main__":
-    player1 = Player(1, "Red", "SirJ", research = ['RESEARCH: Gem Mining'])
+    player1 = Player(1, "Red", "SirJ")
     player1.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 10, 10)
     player1.add_building({"NAME" : "Village", "RES" : 10, "PRE" : []}, 9, 10)
     player1.dest_building(10,10)

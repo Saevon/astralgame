@@ -814,7 +814,7 @@ while choice != "0" or choice.lower() == "quit":
             # BUILD PART 2
             # for the build menu if no long list of options is needed
             ####################################################################
-            elif len(choice) >= 4 and choice[:5].lower() == "build":
+            elif len(choice) >= 5 and choice[:5].lower() == "build":
                 #splits off the name part, and capitalizes it
                 choice = choice[6:]
                 choice = choice.split(" ")
@@ -1091,7 +1091,59 @@ while choice != "0" or choice.lower() == "quit":
             
             # RESEARCH
             ####################################################################
-            
+            elif len(choice) >= 5 and choice[:5].lower() == "learn":
+                #splits off the name part, and capitalizes it
+                name = ""
+                if choice != "learn":
+                    choice = choice[6:]
+                    choice = choice.split(" ")
+                    name = ""
+                    for line in range(len(choice)):
+                        if line == 0:
+                            name += choice[line].upper()
+                            name += " "
+                        else:
+                            name += choice[line].capitalize()
+                            name += " "
+                    name = name[:-1]
+                    # if a buildings was not chosen
+                exec "cur_gold = player%i.gold" % (player)
+                exec "cur_pos_research = player%i.poss_research()[:]" % (player)
+                if len(name) == 0:
+                    exec "cur_research = player%i.research.copy()" % (player)
+                    print "--> Completed Research <--"
+                    for item in cur_research:
+                        print item
+                    
+                    print "\n--> Research Menu <--"
+                    length = 0
+                    for item in cur_pos_research:
+                        if len(item) > length:
+                            length = len(item)
+                    for item in range(len(cur_pos_research)):
+                        if RESEARCH[ cur_pos_research[item] ]["COST"] > cur_gold:
+                            set_color(12)
+                            #red
+                        print "%i) %s" % (item + 1, cur_pos_research[item]),
+                        print " " * (length - len(cur_pos_research[item])) + "-",
+                        print RESEARCH[ cur_pos_research[item] ]["COST"],
+                        print "MP"
+                        print "" + RESEARCH[ cur_pos_research[item] ]["DESC"]
+                        set_color(COLOR)
+                    print "\n0) QUIT"
+                        
+                    build_choice = raw_input("\n: ").lower()
+                    if build_choice.isdigit() and int(build_choice) > 0 and int(build_choice) <= len(cur_pos_research):
+                        name = cur_pos_research[int(build_choice) - 1]
+                
+                # if a building was chosen
+                if len(name) > 0:
+                    if name in cur_pos_research and RESEARCH[name]["COST"] <= cur_gold:
+                        exec "player%i.research[RESEARCH[name]['NAME']] = RESEARCH[name].copy()" % (player)
+                        exec "player%i.gold -= RESEARCH[name]['COST']" % (player)
+                        if name[:6] == "ATTACK":
+                            exec "player%i.attacks[RESEARCH[name]['NAME']]= RESEARCH[name].copy()" % (player)
+                        #adds item etc.
             
             # FIX
             ####################################################################
@@ -1255,12 +1307,12 @@ while choice != "0" or choice.lower() == "quit":
                             save_data += "field.setcell(%i, %i, %s)\n" % (x, y, field.cell(x,y))
                         if effect_field.cell(x,y) != "":
                             save_data += "effect_field.setcell(%i, %i, %s)\n" % (x, y, effect_field.cell(x,y))
-                for person in Player.live_players:
+                for person in Player.live_players[:]:
                     exec "save_color = player%i.color" % (person)
                     exec "save_name = player%i.name" % (person)
                     exec "save_gold = player%i.gold" % (person)
                     exec "save_allies = str(player%i.allies[:])" % (person)
-                    exec "save_research = str(player%i.research[:])" % (person)
+                    exec "save_research = str(player%i.research.copy())" % (person)
                     exec "save_attacks = str(player%i.attacks.copy())" % (person)
                     exec "save_buildings = str(player%i.buildings.copy())" % (person)
                     exec "save_build_list = str(player%i.build_list.copy())" % (person)
