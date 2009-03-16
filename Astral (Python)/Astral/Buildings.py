@@ -9,7 +9,7 @@
 # include LR and UD at the beggining of AL, so two of each picture
 ["HP"] = 150 #Hp when built
 ["MAXHP"] = 150 # max possible Hp (not including updates)
-["MP"] = 50 # + MP per turn --- If mana gain is a percentage put "#%" wiht a num
+["MP"] = 50 # + MP per turn --- If mana gain is a percentage put "#%" with a num
 ["RES"] = 0 # any resistance
 ["FIX"] = 2 # cost to fix per Hp point
 ["COST"] = 500 # cost to build

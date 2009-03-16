@@ -343,8 +343,11 @@ def color_options():
 # ALLY-MENU
 # TRIBUTE
 # FIX
+# INCOME
 # CONSOLE
 # END TURN
+# SAVE
+# LOAD
 
 # Main Menu, loops until quit
 ################################################################################
@@ -473,7 +476,7 @@ while choice != "0" or choice.lower() == "quit":
             
             # SHOW FIELD
             ####################################################################
-            clear(num = 25)
+            clear(num = 30)
             
             for y_value in range(field.sizey() - 1, -1, - 1):
                 #changes numbers to be with 0 at the bottom
@@ -1034,7 +1037,7 @@ while choice != "0" or choice.lower() == "quit":
             
             # FIX
             ####################################################################
-            elif len(choice) >= 3 and choice[:3] == "fix":
+            elif len(choice) >= 3 and choice[:3].lower() == "fix":
                 choice = choice.split(" ")
                 if len(choice) == 3 or len(choice) == 2:
                     choice[1] = choice[1].split(",")
@@ -1052,6 +1055,41 @@ while choice != "0" or choice.lower() == "quit":
                         elif len(choice) == 2:
                             continue_option = "fix"
                             max_heal = 0
+            
+            # INCOME
+            ####################################################################     
+            elif choice.lower() == "income":
+                clear(num = 20)
+                print "--> INCOME <--"
+                # adds mana to the next player
+                exec "items = player%i.buildings.copy()" % (player)
+                mana_gain = 0
+                num = 1
+                for item in items:
+                    exec 'next_mana = player%i.gold + mana_gain' % (player)
+                    if num % 5 == 0:
+                        print "--------------------"
+                        print mana_gain
+                        print ""
+                        
+                    if type(items[item]["MP"]) == type("str"):
+                        print items[item]["NAME"]
+                        print "    + " + items[item]["MP"]
+                        print "    + " + str(next_mana / int(items[item]["MP"][:-1])) + " MP"
+                        num += 1
+                        mana_gain += next_mana / int(items[item]["MP"][:-1])
+                    else:
+                        if items[item]["MP"] != 0:
+                            mana_gain += items[item]["MP"]
+                            print items[item]["NAME"]
+                            print "    + " + str(items[item]["MP"]) + " MP"
+                            num += 1
+                exec 'next_mana = player%i.gold + mana_gain' % (player)
+                print "\n--------------------"
+                print "TOTAL: " + str(mana_gain) + " " * (10 - len(str(mana_gain))) + " MP"
+                print "\nMana Next Turn:"
+                print str(next_mana) + " " * (17 - len(str(next_mana))) + " MP"
+                raw_input("\n\nPress Enter to Continue: ")
             
             # CONSOLE
             ####################################################################
@@ -1084,7 +1122,6 @@ while choice != "0" or choice.lower() == "quit":
                 # changes to next player
                 player += 1
                 while player not in Player.live_players:
-                    print player, Player.live_players
                     player += 1
                     if player > int(options[3]):
                         player = 1
@@ -1094,7 +1131,8 @@ while choice != "0" or choice.lower() == "quit":
                 mana_gain = 0
                 for item in items:
                     if type(items[item]["MP"]) == type("str"):
-                        mana_gain += items[item]["MP"]
+                        exec 'next_mana = player%i.gold + mana_gain' % (player)
+                        mana_gain += next_mana / int(items[item]["MP"][:-1])
                     else:
                         mana_gain += items[item]["MP"]
                 exec "player%i.gold += mana_gain" % (player)
@@ -1138,7 +1176,7 @@ while choice != "0" or choice.lower() == "quit":
 
             # SAVE
             ####################################################################
-            elif len(choice) >= 4 and choice.lower()[:4] == "save":
+            elif len(choice) >= 4 and choice.lower()[:4].lower() == "save":
                 choice = choice.split(" ")
                 if len(choice) == 2:
                     choice = choice[1]
@@ -1177,7 +1215,7 @@ while choice != "0" or choice.lower() == "quit":
             # LOAD
             ####################################################################
             # if game is loaded
-            elif len(choice) >= 4 and choice.lower()[:4] == "load":
+            elif len(choice) >= 4 and choice.lower()[:4].lower() == "load":
                 if raw_input("Are you sure you wish to abandon this game? (Y/N)\n: ").lower() == "y":
                     choice = choice.split(" ")
                     if len(choice) >= 2:
