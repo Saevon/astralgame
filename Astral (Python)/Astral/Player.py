@@ -1,4 +1,5 @@
-from INFO import *
+from INFO import BUILDING
+from INFO import RESEARCH
 
 class Player():
     
@@ -63,7 +64,8 @@ class Player():
             
     def poss_research(self):
         """poss_research(...) --> list
-        Returns all possible research items whoses pre-requisites have been met"""
+        Returns all possible research items whoses pre-requisites have been met.
+        Unless they have 'SPECIAL' in them"""
         possible = []
         for item in RESEARCH:
             if "SPECIAL" not in item:
@@ -77,7 +79,7 @@ class Player():
     
     def poss_building(self):
         """poss_building(...) --> list
-        Returns all possible research items whoses pre-requisites have been met"""
+        Returns all possible buildings whoses pre-requisites have been met"""
         possible = []
         for item in BUILDING:
             for prequisite in BUILDING[item]["PRE"]:
@@ -87,6 +89,10 @@ class Player():
             if len(BUILDING[item]["PRE"]) == 0:
                 possible.append(item.strip('"').strip("'"))
         return possible
+    
+    def isalive(self):
+        if len(build_list) < 1:return False
+        else:return True
     
     
     

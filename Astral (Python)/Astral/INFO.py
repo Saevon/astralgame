@@ -28,14 +28,6 @@ for item in resear:
         exec "temp%s" % (item[val])
     temp["NAME"] = item[0].strip('"').strip("'")
     RESEARCH[item[0].strip('"').strip("'")] = temp.copy()
-    
-"""
-del temp
-del build
-del resear
-del item
-del val
-"""
 
 #Two important values
 BUILDING

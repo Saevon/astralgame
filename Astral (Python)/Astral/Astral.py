@@ -4,8 +4,12 @@ from Player import *
 from SaveLoad import *
 from ConsoleColors import set_color
 from Help import *
-from INFO import *
+from INFO import BUILDING
+from INFO import RESEARCH
 from random import randint
+from time import strftime
+from GetFileDir import get_file_dir
+from os import *
 
 # savegame()  options :  (name, info, tocipher = True, loc = getcwd(), ext = ".txt")
 # loadgame()  options :  (name, tocipher = True, loc = getcwd(), ext = ".txt")
@@ -86,7 +90,6 @@ def options_menu():
     """options() --> OUTPUT
     prints off the options menu file to the command prompt and allows interaction
     """
-    global choice
     choice = ""
     global options
     global RESET_OPTIONS
@@ -157,9 +160,9 @@ def options_menu():
                 options[2] = choice
         ########################################################################
         elif choice == "3":
-            print "\n\n(Max Number is 4)"
+            print "\n\n(Max Number is 5)"
             choice = raw_input("Set New Number of Players\n:")
-            if choice.isdigit() and int(choice) <= 4 and int(choice) > 1:
+            if choice.isdigit() and int(choice) <= 5 and int(choice) > 1:
                 options[3] = choice
                 if len(options[5]) < int(choice):
                     for num in range(int(choice)):
@@ -350,7 +353,7 @@ def color_options():
 ################################################################################
 choice = ""
 set_color(COLOR)
-while choice != "5" or choice.lower() == "quit":
+while choice != "0" or choice.lower() == "quit":
     clear()
     print """
     --> Astral <--
@@ -359,7 +362,8 @@ while choice != "5" or choice.lower() == "quit":
     2) Load Game
     3) Options
     4) Instructions
-    5) Quit
+    
+    0) Quit
     """
     choice = raw_input(":")
     
@@ -394,7 +398,10 @@ while choice != "5" or choice.lower() == "quit":
         if (field.sizex() / 2) % 2 != 0:
             x_half = field.sizex() / 2 - 1
         else:
-            x_half = field.sizex() - 2 
+            x_half = field.sizex() - 2
+            
+        effect_field = Maze("#")
+        effect_field.clear(options[0], options[1], value = "")
             
         x = field.sizex()
         y = field.sizey()
@@ -425,7 +432,14 @@ while choice != "5" or choice.lower() == "quit":
 #LOAD GAME
 ################################################################################
     elif choice == "2":
-        print "Under construction!" # if game is loaded 
+        # if game is loaded
+        directory = getcwd()
+        name = get_file_dir(cur_dir = getcwd() + "\Save Games", ext = ".sav")
+        if name != None:
+            save_data = loadgame(name, loc = getcwd(), ext = ".sav")
+            exec save_data
+            game = True
+        chdir(directory)
         
 ################################################################################
     elif choice == "3":
@@ -435,7 +449,7 @@ while choice != "5" or choice.lower() == "quit":
         #instructions for the game
         help_menu("help")
 ################################################################################
-    elif choice == "5" or choice.lower() == "quit":
+    elif choice == "0" or choice.lower() == "quit":
         if raw_input("Are you sure you wish to quit?\n(Y/N)\n:").lower() == "n":
             choice = ""
         game = False
@@ -454,9 +468,6 @@ while choice != "5" or choice.lower() == "quit":
     
         choice = ""
         max_heal = 0
-        field.setcell(2,2, 1)
-        player1.add_building(BUILDING["Village"].copy(), 2,2)
-        player1.buildings[ (2,2) ]["HP"] = 2
         # Loop for all players
         
         continue_option = False
@@ -562,8 +573,13 @@ while choice != "5" or choice.lower() == "quit":
             ####################################################################  
             elif continue_option == "fix":
                 exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
-                if max_heal == 0:
+                if max_heal == 0 and cur_gold / loc_building["FIX"] != 0:
                     while max_heal != "cancel":
+                        print "HP:    ",
+                        exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
+                        print loc_building["HP"],
+                        print "/",
+                        print loc_building["MAXHP"]
                         max_heal = raw_input("Type Cancel to continue\nHeal How Much HP?\n: ")
                         if max_heal.isdigit():
                             max_heal = int(max_heal)
@@ -918,13 +934,17 @@ while choice != "5" or choice.lower() == "quit":
                     clear()
                     exec "allies = player%i.allies[:]" % (player)
                     # shows the current players
-                    for person in Player.live_players:
+                    for person in range(1, options[3] + 1):
                         print ""
                         exec "print player%s.name"  % (person)
                         exec "set_color(color_num(player%s.color))"  % (person)
                         print "    COLOR"
                         set_color(COLOR)
-                        if person in allies:
+                        if person not in Player.live_players:
+                            set_color(012)
+                            print "    DEAD"
+                            set_color(COLOR)
+                        elif person in allies:
                             print "    ALLY"
                         else:
                             print "    ENEMY"
@@ -1019,19 +1039,22 @@ while choice != "5" or choice.lower() == "quit":
             ####################################################################
             elif len(choice) >= 3 and choice[:3] == "fix":
                 choice = choice.split(" ")
-                if len(choice) == 3:
+                if len(choice) == 3 or len(choice) == 2:
                     choice[1] = choice[1].split(",")
                     if len(choice[1]) == 2 and choice[1][0].isdigit() and choice[1][1].isdigit():
                         choice[1][0] = int(choice[1][0])
                         choice[1][1] = int(choice[1][1])
-                        if choice[2].isdigit():
+                        
+                        if len(choice) == 3 and choice[2].isdigit():
                             choice[2] = int(choice[2])
                             continue_option = "fix"
                             max_heal = choice[2]
-                        elif choice[2] == "max":
+                        elif len(choice) == 3 and choice[2] == "max":
                             max_heal = "max"
                             continue_option = "fix"
-                    
+                        elif len(choice) == 2:
+                            continue_option = "fix"
+                            max_heal = 0
             
             # CONSOLE
             ####################################################################
@@ -1063,14 +1086,17 @@ while choice != "5" or choice.lower() == "quit":
             elif choice.lower() == "end turn" or choice.lower() == "done":
                 # changes to next player
                 player += 1
-                if player > int(options[3]):
-                    player = 1
+                while player not in Player.live_players:
+                    print player, Player.live_players
+                    player += 1
+                    if player > int(options[3]):
+                        player = 1
 
                 # adds mana to the next player
                 exec "items = player%i.buildings.copy()" % (player)
                 mana_gain = 0
                 for item in items:
-                    if type(items[item]["MP"]) == "str":
+                    if type(items[item]["MP"]) == type("str"):
                         mana_gain += items[item]["MP"]
                     else:
                         mana_gain += items[item]["MP"]
@@ -1113,13 +1139,72 @@ while choice != "5" or choice.lower() == "quit":
                 #adds score
                 # UPDATE
 
+            # SAVE
+            ####################################################################
+            elif len(choice) >= 4 and choice.lower()[:4] == "save":
+                choice = choice.split(" ")
+                if len(choice) == 2:
+                    choice = choice[1]
+                else:
+                    choice = "Auto Save" #+ strftime("%Y%m%d%H%M%S")
+                save_data = ""
+                
+                save_data += "options = %s\n" % (str(options[:]))
+                save_data += "field = Maze('#')\n"
+                save_data += 'field.clear(options[0], options[1], value = "")\n'
+                save_data += "effect_field = Maze('#')\n"
+                save_data += 'effect_field.clear(options[0], options[1], value = "")\n'
+                for x in range(field.sizex()):
+                    for y in range(field.sizey()):
+                        if field.cell(x,y) != "":
+                            save_data += "field.setcell(%i, %i, %s)\n" % (x, y, field.cell(x,y))
+                        if effect_field.cell(x,y) != "":
+                            save_data += "effect_field.setcell(%i, %i, %s)\n" % (x, y, effect_field.cell(x,y))
+                for person in Player.live_players:
+                    exec "save_color = player%i.color" % (person)
+                    exec "save_name = player%i.name" % (person)
+                    exec "save_gold = player%i.gold" % (person)
+                    exec "save_allies = str(player%i.allies[:])" % (person)
+                    exec "save_research = str(player%i.research[:])" % (person)
+                    exec "save_attacks = str(player%i.attacks.copy())" % (person)
+                    exec "save_buildings = str(player%i.buildings.copy())" % (person)
+                    exec "save_build_list = str(player%i.build_list.copy())" % (person)
+                    exec "save_turn = player%i.turn" % (person)
+                    exec "save_score = player%i.score" % (person)
+                    save_data += "player%i = Player(%i, '%s', '%s', gold = %i, allies = %s, research = %s, attacks = %s, buildings = %s, build_list = %s, turn = %i, score = %i)\n" % (person, person, save_color, save_name, save_gold, save_allies, save_research, save_attacks, save_buildings, save_build_list, save_turn, save_score)
+                
+                save_data += "player = %i\n" % (player)
+                save_data += "ally_invite = %s\n" %(str(ally_invite))
+                savegame(choice, save_data, loc = getcwd() + "\\Save Games" ,ext = ".sav")
+                
+            # LOAD
+            ####################################################################
+            # if game is loaded
+            elif len(choice) >= 4 and choice.lower()[:4] == "load":
+                if raw_input("Are you sure you wish to abandon this game? (Y/N)\n: ").lower() == "y":
+                    choice = choice.split(" ")
+                    if len(choice) >= 2:
+                        choice = " ".join(choice[1:])
+                    else:
+                        choice = "Auto Save" #+ strftime("%Y%m%d%H%M%S")
+                    directory = getcwd()
+                    name = choice
+                    try:
+                        save_data = loadgame(name, loc = getcwd() + "\\Save Games", ext = ".sav")
+                        exec save_data
+                        game = True
+                    except:
+                        print "Game could not load..."
+                        raw_input("Press Enter to Continue: ")
+                    chdir(directory)
+                choice = ""
+                        
             # checks if the player truly wants to exit
             ####################################################################
             elif choice.lower() == "quit" or choice.lower() == "q" or choice.lower() == "exit":  
                 set_color(12)
                 if raw_input("\nAre You Sure You Wish to Exit? (Y/N)\n:").lower() != "y":
                     choice = ""
-                    game = False
                 set_color(COLOR)
                 
             # if the person misspelled somethin, not a known combination
@@ -1128,4 +1213,4 @@ while choice != "5" or choice.lower() == "quit":
             else:
                 fail = True
         
-        
+        game = False
