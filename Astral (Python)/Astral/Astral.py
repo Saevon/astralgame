@@ -11,9 +11,6 @@ from time import strftime
 from GetFileDir import get_file_dir
 from os import *
 
-# savegame()  options :  (name, info, tocipher = True, loc = getcwd(), ext = ".txt")
-# loadgame()  options :  (name, tocipher = True, loc = getcwd(), ext = ".txt")
-# loadgame returns the read file, deciphered
 ################################################################################
 def clear(num = 15):
     for i in range(num):
