@@ -147,7 +147,7 @@ public class Items {
     } else {
       value = str;
     }
-    } catch (IOException e) {
+    } catch (Exception e) {
       System.out.println("ERROR READING FILE(Called by:Items)");
       System.exit(-1);
     }

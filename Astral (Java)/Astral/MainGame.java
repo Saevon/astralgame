@@ -95,7 +95,7 @@ public class MainGame {
        case 4: looper=1; break;
        default: System.out.println(nocmd); sleep(1); break;
      }
-    }  catch (Exception ex) { System.out.println(nocmd+ex.getMessage()); ex.printStackTrace(); sleep(1); }
+    }  catch (Exception ex) { System.out.println(nocmd); sleep(1); }
     }
   }
   
@@ -150,23 +150,32 @@ public class MainGame {
     //Checks if command is allowed
     boolean result = false;
     if (uc.indexOf("buy")!=-1) {
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
       } else {
-        System.out.println(red+"Not enough money!"+cr);
+        System.out.println(cr+red+"Not enough money!"+cr);
         sleep(0.8);
+      }
+      if (items.isItem(xcoord,ycoord)) {
+        System.out.println(cr+red+"Item already there!"+cr);
+        sleep(0.8);
+        result = false;
       }
     } else if (uc.indexOf("quit")!=-1) {
       result = true;
     } else if (uc.indexOf("help")!=-1) {
       result = true;
     } else if (uc.indexOf("sell")!=-1) {
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int value = Stats.getValue(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
-      if (value!=-1) {
+      if ((value!=-1)&&(items.isItem(xcoord,ycoord))) {
         result = true;
       } else {
-        System.out.println(red+"Can't be sold!"+cr);
+        System.out.println(cr+red+"Can't be sold!"+cr);
         sleep(0.8);
       }
     } else if (uc.indexOf("status")!=-1) {
