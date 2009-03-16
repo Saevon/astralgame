@@ -7,6 +7,7 @@ class Player():
 
     def __init__(self, instance_name, color, name, gold = 0, allies = [], research = [], attacks = {}, buildings = {}, build_list = {}, turn = 0, score = 0):
         Player.live_players.append(instance_name)
+        self.instance = instance_name
         self.gold = gold
         self.color = color
         self.name = name
@@ -91,7 +92,10 @@ class Player():
         return possible
     
     def isalive(self):
-        if len(build_list) < 1:return False
+        if len(self.build_list) < 1:
+            for i in range(Player.live_players.count(self.instance)):
+                Player.live_players.remove(self.instance)
+            return False
         else:return True
     
     

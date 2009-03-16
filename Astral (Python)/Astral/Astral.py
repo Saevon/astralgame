@@ -336,13 +336,16 @@ def color_options():
 # SHOW FIELD
 # PLAYER INFO
 # FIX CONTINUE
+# SELL CONTINUE
 # BUILD CONTINUE
 # BUILD
 # BUILD PART 2
 # STATS
 # ALLY-MENU
 # TRIBUTE
+# RESEARCH
 # FIX
+# SELL
 # INCOME
 # CONSOLE
 # END TURN
@@ -427,6 +430,7 @@ while choice != "0" or choice.lower() == "quit":
         player1.turn = 1
         
         game = True
+        did_player_attack = False
         clear()
         
 #LOAD GAME
@@ -604,6 +608,29 @@ while choice != "0" or choice.lower() == "quit":
                 continue_option = False
                 choice = ""
             
+            # SELL CONTINUE
+            ####################################################################
+            elif continue_option == 'sell':
+                exec "temp_cost = player%i.buildings[ (choice[1][0], choice[1][1]) ]['COST']" % (player)
+                exec "temp_hp = player%i.buildings[ (choice[1][0], choice[1][1]) ]['HP']" % (player)
+                exec "temp_maxhp = player%i.buildings[ (choice[1][0], choice[1][1]) ]['MAXHP']" % (player)
+                mana_gain = int((float(temp_hp) / temp_maxhp) * temp_cost) - 1
+                exec "player%i.gold += mana_gain" % (player)
+                exec "player%i.dest_building( choice[1][0], choice[1][1] )" % (player)
+                field.setcell(choice[1][0], choice[1][1], "")
+                print "Sold For: " + str(mana_gain) + " MP"
+                raw_input("\nPress Enter to Continue: ")
+                mana_gain = 0
+                choice = ""
+                continue_option = False
+                exec "temp_alive = player%i.isalive()" % (player)
+                if not temp_alive:
+                    set_color(012)
+                    print "\nGAME OVER\nYou Have No More Buildings, you have lost the game."
+                    raw_input("Press Enter to Continue: ")
+                    set_color(COLOR)
+                    choice = "done"
+                
             # BUILD CONTINUE
             #if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
             ####################################################################
@@ -820,6 +847,21 @@ while choice != "0" or choice.lower() == "quit":
                     continue_option = "build"
                     choice = ""   
             
+            # SELL
+            ####################################################################
+            elif len(choice) >= 4 and choice[:4].lower() == "sell" and not did_player_attack:
+                choice = choice.split(" ")
+                if len(choice) == 3 or len(choice) == 2:
+                    choice[1] = choice[1].split(",")
+                    if len(choice[1]) == 2 and choice[1][0].isdigit() and choice[1][1].isdigit():
+                        choice[1][0] = int(choice[1][0])
+                        choice[1][1] = int(choice[1][1])
+                        if field.cell( choice[1][0], choice[1][1]) == player:
+                            continue_option = "sell"
+                        else:
+                            choice = ""
+            
+                    
             # STATS UPDATE
             # Shows stats of buildings
             ####################################################################
@@ -888,13 +930,21 @@ while choice != "0" or choice.lower() == "quit":
                                 
                                 
                                 print ""
+                                if not did_player_attack:
+                                    print "1) Sell"
+                                    exec "temp_cost = player%i.buildings[ (choice[1][0], choice[1][1]) ]['COST']" % (player)
+                                    exec "temp_hp = player%i.buildings[ (choice[1][0], choice[1][1]) ]['HP']" % (player)
+                                    exec "temp_maxhp = player%i.buildings[ (choice[1][0], choice[1][1]) ]['MAXHP']" % (player)
+                                    mana_gain = int((float(temp_hp) / temp_maxhp) * temp_cost) - 1
+                                    print "    FOR: " + str(mana_gain) + " MP"
+                                    mana_gain = 0
                                 if loc_building["FIX"] < cur_gold and loc_building["HP"] != loc_building["MAXHP"]:
-                                    print "1) Fix"
-                                    print "2) Max Possible Fix"
+                                    print "2) Fix"
+                                    print "3) Max Possible Fix"
                                 
                                 for item in range(len(loc_building["OPT"])):
                                     if loc_building["OPT"][item] not in loc_building["OPT-DONE"]:
-                                        print "%i) %s" % (item + 3, loc_building["OPT"][item]),
+                                        print "%i) %s" % (item + 4, loc_building["OPT"][item]),
                                         print ": COST " + str(RESEARCH[loc_building["OPT"][item]]["COST"]) + " MP"
                                     else:print ""
                                 
@@ -904,15 +954,19 @@ while choice != "0" or choice.lower() == "quit":
                                     stats_choice = int(stats_choice)
                                 else:
                                     stats_choice = 0
-                                if stats_choice == 1 and loc_building["HP"] != loc_building["MAXHP"]:
+                                if stats_choice == 1 and not did_player_attack:
+                                    if raw_input("Are You Sure You Wish to Sell? (Y/N)\n: ").lower() == "y":
+                                        choice[0] = "sell"
+                                        continue_option = "sell"
+                                elif stats_choice == 2 and loc_building["HP"] != loc_building["MAXHP"]:
                                     continue_option = "fix" 
                                     max_heal = 0
                                             
-                                elif stats_choice == 2 and loc_building["HP"] != loc_building["MAXHP"]:
+                                elif stats_choice == 3 and loc_building["HP"] != loc_building["MAXHP"]:
                                     continue_option = "fix"
                                     max_heal = "max"
                                     
-                                elif stats_choice > 2 and stats_choice <= range(len(loc_building["OPT"])):
+                                elif stats_choice > 3 and stats_choice <= len(loc_building["OPT"]) + 3:
                                     if loc_building["OPT"][stats_choice] not in loc_building["OPT-DONE"]:
                                         pass
                                         # Research for options for these buildings
@@ -1034,6 +1088,10 @@ while choice != "0" or choice.lower() == "quit":
                 if name != "cancel" and name != "q" and choice[2] != "cancel" and choice[2] != "q":
                     exec "player%i.gold += int(choice[2])" % (people[choice[1]])
                     exec "player%i.gold -= int(choice[2])" % (player)
+            
+            # RESEARCH
+            ####################################################################
+            
             
             # FIX
             ####################################################################
@@ -1171,6 +1229,8 @@ while choice != "0" or choice.lower() == "quit":
                 
                 # adds 1 turn to next player
                 exec "player%i.turn += 1" % (player)
+                # shows the player did not attack yet
+                did_player_attack = False
                 #adds score
                 # UPDATE
 
@@ -1210,6 +1270,7 @@ while choice != "0" or choice.lower() == "quit":
                 
                 save_data += "player = %i\n" % (player)
                 save_data += "ally_invite = %s\n" %(str(ally_invite))
+                save_data += "did_player_attack = %s" % (str(did_player_attack))
                 savegame(choice, save_data, loc = getcwd() + "\\Save Games" ,ext = ".sav")
                 
             # LOAD
