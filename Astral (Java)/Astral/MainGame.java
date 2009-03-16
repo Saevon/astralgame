@@ -95,7 +95,7 @@ public class MainGame {
        case 4: looper=1; break;
        default: System.out.println(nocmd); sleep(1); break;
      }
-    }  catch (Exception ex) { System.out.println(nocmd); sleep(1); }
+    }  catch (Exception ex) { System.out.println(nocmd); ex.printStackTrace(); sleep(1); }
     }
   }
   
@@ -118,7 +118,7 @@ public class MainGame {
       newMap();
       players = new Players("Player1", "Player2", 150, 0);
       items = new Items();
-      String spr = System.getProperty("path.separator");
+      String spr = System.getProperty("file.separator");
       String dir = System.getProperty("user.dir")+spr+"Astral";
       new File(dir+spr+"data"+spr+"items.db").delete();
       while (true==true) {
@@ -153,6 +153,8 @@ public class MainGame {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      String tempsymbol = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      if ( (tempsymbol.equals("+")) || ((xcoord%2==1)&&(ycoord%2==1)) ) {
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
       } else {
@@ -164,7 +166,13 @@ public class MainGame {
         sleep(0.8);
         result = false;
       }
+      } else {
+        System.out.println(cr+red+"Cant't be placed there!"+cr);
+        sleep(0.8);
+      }
     } else if (uc.indexOf("quit")!=-1) {
+      result = true;
+    } else if (uc.indexOf("exit")!=-1) {
       result = true;
     } else if (uc.indexOf("help")!=-1) {
       result = true;
@@ -202,6 +210,9 @@ public class MainGame {
     } else if (uc.indexOf("quit")!=-1) {
       System.out.println("Brutally Disconnecting...");
       System.exit(0);
+    } else if (uc.indexOf("exit")!=-1) {
+      System.out.println("Brutally Disconnecting...");
+      System.exit(0);
     } else if (uc.indexOf("help")!=-1) {
       System.out.println("(Sorry, not yet implemented)");
       sleep(0.8);
@@ -216,7 +227,11 @@ public class MainGame {
       System.out.println("Sold!");
       sleep(0.8);
     } else if (uc.indexOf("status")!=-1) {
-      
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      int ycoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1));
+      System.out.println(items.getInfo(xcoord,ycoord));
+      SimpleIO.prompt("(Press Enter)");
+      SimpleIO.readLine();
     }
   }
   
@@ -250,14 +265,16 @@ public class MainGame {
   
   
   private static void redraw() {
-    //Re-draw the map
+    //Re-draws the map
+    //Harder to understand the algorithm,
+    //even I get confused :).
+    //Just know it works!
     int ch = 1;
     int cl = 1;
+    boolean c2 = true;
     boolean ci = true;
-    boolean ci2 = true;
     System.out.print("\n");
     while (ch<=height) {
-      if (ci2) {
       if (ch<10) {
     System.out.print(ch);
       } else {
@@ -269,17 +286,14 @@ public class MainGame {
           case 1: if (ci) { System.out.print("+"); ci = false; } else { System.out.print("+"); ci = true; } break;
           case 2: if (ci) { System.out.print("#"); ci = false; } else { System.out.print("#"); ci = true; } break;
           case 3: if (ci) { System.out.print("^"); ci = false; } else { System.out.print("^"); ci = true; } break;
-          default: if (ci) { System.out.print("o"); ci = false; } else { System.out.print(" "); ci = true; } break;
+          default: if (c2) { if (ci) { System.out.print("o"); ci = false; } else { System.out.print(" "); ci = true; } } break;
         }
         cl++;
       }
       ci = true;
        cl = 1;
-       ci2 = !ci2;
        ch++;
-      } else {
-        ci2 = !ci2;
-      }
+       c2 = !c2;
       System.out.println();
     }
     System.out.print("  ");

@@ -7,7 +7,8 @@ cost=-1
 fixcost=2
 value=-1
 max=1
-extra="You lose if it is destroyed"
+income=50
+extra=You lose if it is destroyed
 %
 %
 name=AstralLine
@@ -17,7 +18,8 @@ cost=5
 fixcost=2
 value=2
 max=-1
-extra="Allows buildings to be connected"
+income=0
+extra=Allows buildings to be connected
 %
 %
 name=Village
@@ -27,6 +29,7 @@ cost=30
 fixcost=2
 value=15
 max=-1
-extra="You can use this as an offensive structure"
+income=5
+extra=You can use this as an offensive structure,
 %
 @

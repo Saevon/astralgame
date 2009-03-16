@@ -67,6 +67,11 @@ public class Stats {
     return Integer.parseInt(readStats(symbol,"max"));
   }
   
+  public static int getIncome(String symbol) {
+    //Gets the amount of income ecieved from an item per turn
+    return Integer.parseInt(readStats(symbol,"income"));
+  }
+  
   private static String readStats(String symbol, String type) {
     //Reads data/stats.db to get properties
     String spr = System.getProperty("file.separator");

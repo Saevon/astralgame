@@ -43,15 +43,17 @@ public class Items {
     String maxhp = Integer.toString(Stats.getMaxHP(getItem(x,y)));
     String value = Integer.toString(Stats.getValue(getItem(x,y)));
     String fixcost = Integer.toString(Stats.getFixCost(getItem(x,y)));
+    String income = Integer.toString(Stats.getIncome(getItem(x,y)));
     String extra = Stats.getExtraInfo(getItem(x,y));
     String text1 =  "\n"+getItem(x,y)+" - "+itemname+" ("+
                     Integer.toString(x)+","+Integer.toString(y)+
                     ") [Player "+getPlayer(x,y)+"]\n";
-    String text2 = "HP: "+getHP(x,y)+"/"+maxhp+"/n";
-    String text3 = "Value: $"+value;
-    String text4 = "/nFix Cost: $"+fixcost+"/HP\n";
-    String text5 = "Extra: "+extra;
-    return text1+text2+text3+text4+text5;
+    String text2 = "HP: "+getHP(x,y)+"/"+maxhp+"\n";
+    String text3 = "Value($): "+value;
+    String text4 = "\nFix Cost($): "+fixcost+"/HP";
+    String text5 = "\nIncome($): "+income;
+    String text6 = "\nExtra: "+extra;
+    return text1+text2+text3+text4+text5+text6;
   }
   
   public void delete(int x, int y) {
@@ -92,8 +94,9 @@ public class Items {
     //Writes data about an item to data/items.db
     try {
       String str;
-    String spr = System.getProperty("path.separator");
-    RandomAccessFile in = new RandomAccessFile(new File(spr+"data"+spr+"items.db"), "rw");
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
+    RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     try {
     str = in.readLine();
     while ((str.indexOf(x+","+y))==-1) {
@@ -115,7 +118,8 @@ public class Items {
       in.writeChars(spaces);
       while (((str = in.readLine()))!=null) {
     }
-      in.writeChars(info);
+      System.out.println("here1! "+info);
+      in.writeBytes(info);
     }
       in.close();
     } catch (Exception e) {
@@ -129,26 +133,30 @@ public class Items {
     //Reads data about an item from data/items.db
     //Type can be "HP", "player", "symbol", "all"
     //Note: returns "na" if no item is found
-    String value = "";
+    String value = "na";
+    String str = "";
     try {
-      String str;
     String spr = System.getProperty("file.separator");
     String dir = System.getProperty("user.dir")+spr+"Astral";
     RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
+    try {
     while (((str = in.readLine()).indexOf(x+","+y))==-1) {
     }
-    in.close();
     if (type.equals("HP")) {
       value = str.substring(str.lastIndexOf(",")+1);
     } else if (type.equals("player")) {
       value = str.substring(str.indexOf(";")+3, str.lastIndexOf(";")+4);
     } else if (type.equals("symbol")) {
-      str.substring(str.lastIndexOf(";")+1,str.lastIndexOf(";")+2);
+      value = str.substring(str.lastIndexOf(";")+1,str.lastIndexOf(";")+2);
     } else {
       value = str;
     }
-    } catch (Exception e) {
+    } catch (NullPointerException nex) {
+    }
+    in.close();
+    } catch (Exception ex) {
       System.out.println("ERROR READING FILE(Called by:Items)");
+      ex.printStackTrace();
       System.exit(-1);
     }
     return value;
