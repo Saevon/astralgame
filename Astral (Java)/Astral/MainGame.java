@@ -35,7 +35,7 @@ public class MainGame {
    * ^ = 3
    */
   static int height = 9;
-  static int length = 15;
+  static int length = 9;
   static int[][] array;
   static int curplayer = 1;
   static int turnphase = 1;
@@ -189,26 +189,26 @@ public class MainGame {
           xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
           ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
         }
-      int cost = Stats.getCost(tempsymbol);          
+      int cost = Stats.getCost(tempsymbol);
+      if (curplayer==items.getPlayer(xcoord,ycoord)) {
       if ( (tempsymbol.equals("+")) || ((xcoord%2==1)&&(ycoord%2==1)) ) {
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
       } else {
         System.out.println(cr+red+"Not enough money!"+cr);
-        sleep(0.8);
       }
       if (items.isItem(xcoord,ycoord)) {
         System.out.println(cr+red+"Item already there!"+cr);
-        sleep(0.8);
         result = false;
       }
       } else {
         System.out.println(cr+red+"Cant't be placed there!"+cr);
-        sleep(0.8);
+      }
+      } else {
+        System.out.println(cr+red+"Not your item!"+cr);
       }
       } else {
         System.out.println(cr+red+"No building during this phase!"+cr);
-        sleep(0.8);
       }
     } else if (uc.indexOf("quit")!=-1) {
       result = true;
@@ -222,11 +222,15 @@ public class MainGame {
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       if (items.isItem(xcoord,ycoord)) {
         int value = Stats.getValue(items.getItem(xcoord,ycoord));
+        if (curplayer==items.getPlayer(xcoord,ycoord)) {
         if (value!=-1) {
         result = true;
         } else {
         System.out.println(cr+red+"Can't be sold!"+cr);
         sleep(0.8);
+      }
+      } else {
+        System.out.println(cr+red+"Not your item!"+cr);
       }
       } else {
         System.out.println(cr+red+"No item found!"+cr);
@@ -253,11 +257,15 @@ public class MainGame {
       int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int maxhp = Stats.getMaxHP(items.getItem(xc,yc));
       int curhp = items.getHP(xc,yc);
+      if (curplayer==items.getPlayer(xc,yc)) {
       if (curhp<maxhp) {
         result = true;
       } else {
         System.out.println(red+"Item's HP is already full!"+cr);
         sleep(0.8);
+      }
+      } else {
+        System.out.println(cr+red+"Not your item!"+cr);
       }
       } else {
         System.out.println(red+"No fixing during this phase!"+cr);
@@ -266,11 +274,17 @@ public class MainGame {
     } else if (uc.indexOf("done")!=-1) {
       result = true;
     } else if ((uc.indexOf("attack")!=-1)||(uc.indexOf("atk")!=-1)) {
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      if (curplayer==items.getPlayer(xc,yc)) {
       if (turnphase!=3) {
       result = true;
       } else {
         System.out.println(red+"You have finished attacking!"+cr);
         sleep(0.8);
+      } 
+      } else {
+        System.out.println(cr+red+"Not your item!"+cr);
       }
     } else {
       System.out.println(nocmd);
@@ -326,7 +340,7 @@ public class MainGame {
       if (owner==1) {
       System.out.println(yell+items.getInfo(xcoord,ycoord)+cr);
       } else {
-        System.out.println(yell+items.getInfo(xcoord,ycoord)+cr);
+        System.out.println(pink+items.getInfo(xcoord,ycoord)+cr);
       }
       SimpleIO.prompt("(Press Enter)");
       SimpleIO.readLine();
@@ -371,7 +385,7 @@ public class MainGame {
             String tmpsym = items.getItem(xc,yc+1);
             items.delete(xc,yc+1);
             items.create(xc,yc+1,tmpsym,curplayer,1);
-            System.out.println("Captured Item!");
+            System.out.println(red+"Captured Item!"+cr);
           } else {
             items.fix(xc,yc+1,-attpower);
             System.out.println("Target's HP: "+items.getHP(xc,yc+1)+"/"+Stats.getMaxHP(items.getItem(xc,yc+1)));
@@ -381,7 +395,7 @@ public class MainGame {
             String tmpsym = items.getItem(xc,yc-1);
             items.delete(xc,yc-1);
             items.create(xc,yc-1,tmpsym,curplayer,1);
-            System.out.println("Captured Item!");
+            System.out.println(red+"Captured Item!"+cr);
           } else {
             items.fix(xc,yc-1,-attpower);
             System.out.println("Target's HP: "+items.getHP(xc,yc-1)+"/"+Stats.getMaxHP(items.getItem(xc,yc-1)));
@@ -391,7 +405,7 @@ public class MainGame {
             String tmpsym = items.getItem(xc+1,yc);
             items.delete(xc+1,yc);
             items.create(xc+1,yc,tmpsym,curplayer,1);
-            System.out.println("Captured Item!");
+            System.out.println(red+"Captured Item!"+cr);
           } else {
             items.fix(xc+1,yc,-attpower);
             System.out.println("Target's HP: "+items.getHP(xc+1,yc)+"/"+Stats.getMaxHP(items.getItem(xc+1,yc)));
@@ -401,7 +415,7 @@ public class MainGame {
             String tmpsym = items.getItem(xc-1,yc);
             items.delete(xc-1,yc);
             items.create(xc-1,yc,tmpsym,curplayer,1);
-            System.out.println("Captured Item!");
+            System.out.println(red+"Captured Item!"+cr);
           } else {
             items.fix(xc-1,yc,-attpower);
             System.out.println("Target's HP: "+items.getHP(xc-1,yc)+"/"+Stats.getMaxHP(items.getItem(xc-1,yc)));
