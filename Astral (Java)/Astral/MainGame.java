@@ -434,15 +434,16 @@ public class MainGame {
     int pl2money = players.getMoney(2);
     int pl1power = players.getPower(1);
     int pl2power = players.getPower(2);
+    String toprint = "";
     System.out.print("\n");
     while (ch<=height) {
       if (ch<10) {
-    System.out.print(ch);
+    toprint=toprint+ch;
       } else {
-        System.out.print(Integer.toString(ch).substring(1,2));
+        toprint=toprint+Integer.toString(ch).substring(1,2);
       }
       while (cl<=length) {
-        System.out.print(" ");
+        toprint = toprint+" ";
         if ((cl==x)&&(ch==y)&&(attack==true)) {
           ac = attclr;
         } else {
@@ -476,28 +477,29 @@ public class MainGame {
         clr = cr;
         }
         switch (array[cl-1][ch-1]) {
-          case 1: System.out.print(ac+clr+"+"+cr); break;
-          case 2: System.out.print(ac+clr+"#"+cr); break;
-          case 3: System.out.print(ac+clr+"^"+cr); break;
-          default: if((cl%2==1)&&(ch%2==1)) { System.out.print("o"); } else { System.out.print(" "); } break;
+          case 1: toprint=toprint+ac+clr+"+"+cr; break;
+          case 2: toprint=toprint+ac+clr+"#"+cr; break;
+          case 3: toprint=toprint+ac+clr+"^"+cr; break;
+          default: if((cl%2==1)&&(ch%2==1)) { toprint=toprint+"o"; } else { toprint=toprint+" "; } break;
         }
         cl++;
       }
       if (ch==2) {
-        System.out.print(" P1 $"+pl1money);
+        toprint=toprint+" P1 $"+pl1money;
       } else if (ch==3) {
-        System.out.print(" P2 $"+pl2money);
+        toprint=toprint+" P2 $"+pl2money;
       //} else if (ch==4) {
       //  System.out.print(" P1(P): "+players.getPower(1)+"/"+players.getMaxPower(1));
       //} else if (ch==5) {
       //  System.out.print(" P2(P): "+players.getPower(2)+"/"+players.getMaxPower(2));
       } else if (ch==1) {
-        System.out.print(" Quick Stats:");
+        toprint=toprint+" Quick Stats:";
       }
        cl = 1;
        ch++;
-      System.out.println();
+       toprint=toprint+"\n";
     }
+    System.out.print(toprint);
     System.out.print("  ");
     for (int lnum = 1; lnum<=length; lnum++) {
       if (lnum<10) {
