@@ -1,7 +1,7 @@
 @
 %
-name=Castle
 symbol=#
+name=Castle
 HP=150
 cost=-1
 fixcost=2
@@ -11,9 +11,9 @@ income=50
 extra=You lose if it is destroyed
 %
 %
-name=AstralLine
 symbol=+
-HP=1
+name=AstralLine
+HP=5
 cost=5
 fixcost=2
 value=2
@@ -22,8 +22,8 @@ income=0
 extra=Allows buildings to be connected
 %
 %
-name=Village
 symbol=^
+name=Village
 HP=10
 cost=30
 fixcost=2

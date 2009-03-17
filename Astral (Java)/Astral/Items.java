@@ -85,21 +85,24 @@ public class Items {
     }
   }
   
-  public String getPlayer(int x, int y) {
+  public int getPlayer(int x, int y) {
     //Gets the owner of the item
-    return read(x,y,"player");
+    return Integer.parseInt(read(x,y,"player"));
   }
   
   private void write(int x, int y, String info) {
     //Writes data about an item to data/items.db
     try {
       String str;
+      long tmp = 0;
     String spr = System.getProperty("file.separator");
     String dir = System.getProperty("user.dir")+spr+"Astral";
     RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     try {
+    tmp = in.getFilePointer() + 1;
     str = in.readLine();
     while ((str.indexOf(x+","+y))==-1) {
+      tmp = in.getFilePointer() + 1;
       str = in.readLine();
     }
     } catch (Exception ex) {
@@ -110,16 +113,20 @@ public class Items {
     while (spaces.length()<str.length()) {
       spaces = spaces + " ";
     }
+    if (tmp!=0) {
+      tmp=tmp-1;
+    }
     if (info.equals("erase")) {
       //Erase data from file
-      in.writeChars(spaces);
+      in.seek(tmp);
+      in.writeBytes(spaces);
     } else {
       //Replace data in file
-      in.writeChars(spaces);
+      in.seek(tmp);
+      in.writeBytes(spaces);
       while (((str = in.readLine()))!=null) {
     }
-      System.out.println("here1! "+info);
-      in.writeBytes(info);
+      in.writeBytes("\n"+info);
     }
       in.close();
     } catch (Exception e) {

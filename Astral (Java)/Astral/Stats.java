@@ -87,6 +87,7 @@ public class Stats {
         return str.substring(str.indexOf("=")+1);
     } catch (Exception e) {
       System.out.println("ERROR READING FILE(Called by:Stats)");
+      e.printStackTrace();
       System.exit(-1);
     }
     return null;

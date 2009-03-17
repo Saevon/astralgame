@@ -19,11 +19,12 @@ public class MainGame {
   final static String cmd = "> ";
   static String red = "";
   static String blue = "";
-  static String cyan = "";
+  static String attclr = "";
   static String gr = "";
   static String prp = "";
   static String cr = "";
   static String yell = "";
+  static String pink = "";
   static Players players;
   static Items items;
   /* The array stores numbers corrresponding to items
@@ -47,15 +48,16 @@ public class MainGame {
       red = AnsiString.RED_ESC;
       blue = AnsiString.BLUE_ESC;
       prp = AnsiString.PURPLE_ESC;
-      cyan = AnsiString.CYAN_ESC;
+      attclr = "\033[1;46m";
       cr = AnsiString.RESET_ESC;
       yell = AnsiString.YELLOW_ESC;
       gr = AnsiString.GREEN_ESC;
+      pink = "\033[1;35m";
       }
     } catch (Exception ex) {}
     // Displays main game menu and options
     int looper = 0;
-    System.out.println(cyan+"\n-A-S-T-R-A-L-"+cr);
+    System.out.println("\n-A-S-T-R-A-L-");
     while (looper==0) {
     SimpleIO.prompt(gr+"\nMAIN MENU\n"+
                     "1) Start a new game\n"+
@@ -135,6 +137,10 @@ public class MainGame {
      * 3) Executes command
      * 4) Re-Draws Map and CMD prompt
      */
+    if (turnphase==4) {
+    players.addMoney(curplayer,calcIncome());
+    turnphase=1;
+    }
     redraw();
     SimpleIO.prompt("\n"+cmd);
     String usercmd = SimpleIO.readLine();
@@ -177,17 +183,35 @@ public class MainGame {
     } else if (uc.indexOf("help")!=-1) {
       result = true;
     } else if (uc.indexOf("sell")!=-1) {
-      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
-      int value = Stats.getValue(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
-      if ((value!=-1)&&(items.isItem(xcoord,ycoord))) {
+      if (items.isItem(xcoord,ycoord)) {
+        int value = Stats.getValue(items.getItem(xcoord,ycoord));
+        if (value!=-1) {
         result = true;
+        } else {
+        System.out.println(cr+red+"Can't be sold!"+cr);
+        sleep(0.8);
+      }
       } else {
         System.out.println(cr+red+"Can't be sold!"+cr);
         sleep(0.8);
       }
     } else if (uc.indexOf("status")!=-1) {
       result = true;
+    } else if (uc.indexOf("done")!=-1) {
+      result = true;
+    } else if (uc.indexOf("fix")!=-1) {
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      int maxhp = Stats.getMaxHP(items.getItem(xc,yc));
+      int curhp = items.getHP(xc,yc);
+      if (curhp<maxhp) {
+        result = true;
+      } else {
+        System.out.println(red+"Item's HP is already full!"+cr);
+        sleep(0.8);
+      }
     } else {
       System.out.println(nocmd);
       sleep(0.8);
@@ -217,11 +241,11 @@ public class MainGame {
       System.out.println("(Sorry, not yet implemented)");
       sleep(0.8);
     } else if (uc.indexOf("sell")!=-1) {
-      int value = Stats.getValue(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
-      players.addMoney(curplayer, value);
-      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
-      String sym = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      int value = Stats.getValue(items.getItem(xcoord,ycoord));
+      String sym = items.getItem(xcoord,ycoord);
+      players.addMoney(curplayer, value);
       addItem(xcoord,ycoord,"d");
       items.delete(xcoord,ycoord);
       System.out.println("Sold!");
@@ -232,6 +256,33 @@ public class MainGame {
       System.out.println(items.getInfo(xcoord,ycoord));
       SimpleIO.prompt("(Press Enter)");
       SimpleIO.readLine();
+    } else if (uc.indexOf("done")!=-1) {
+      if (uc.indexOf("attack")!=-1) {
+        turnphase = 3;
+      } else if (uc.indexOf("turn")!=-1) {
+        turnphase = 4;
+        if (curplayer==1) {
+          curplayer = 2;
+        } else {
+          curplayer = 1;
+        }
+      }
+    } else if (uc.indexOf("fix")!=-1) {
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      int maxhp = Stats.getMaxHP(items.getItem(xc,yc));
+      int curhp = items.getHP(xc,yc);
+      int fixcost = Stats.getFixCost(items.getItem(xc,yc));
+      int curmoney = players.getMoney(curplayer);
+      int maxheal = curmoney/fixcost;
+        int needheal = maxhp - curhp;
+        if (needheal<maxheal) {
+          maxheal = needheal;
+        }
+        SimpleIO.prompt(Stats.getName(items.getItem(xc,yc))+" HP: "+curhp+"/"+maxhp+"\nHeal how much(MAX="+maxheal+")? ");
+        int wantheal = Integer.parseInt(SimpleIO.readLine());
+        players.addMoney(curplayer,-wantheal*fixcost);
+        items.fix(xc,yc,wantheal);
     }
   }
   
@@ -273,6 +324,7 @@ public class MainGame {
     int cl = 1;
     boolean c2 = true;
     boolean ci = true;
+    String clr;
     System.out.print("\n");
     while (ch<=height) {
       if (ch<10) {
@@ -282,13 +334,51 @@ public class MainGame {
       }
       while (cl<=length) {
         System.out.print(" ");
+        if (items.isItem(cl,ch)) {
+          int maxhp = Stats.getMaxHP(items.getItem(cl,ch));
+          int curhp = items.getHP(cl,ch);
+          int snum = (maxhp-(maxhp%3))/3;
+          int owner = items.getPlayer(cl,ch);
+          if (curhp<=snum) {
+            if (owner==1) {
+              clr = red;
+            } else {
+              clr = prp;
+            }
+          } else if ((curhp>snum)&&(curhp<=(snum*2))) {
+            if (owner==1) {
+              clr = gr;
+            } else {
+              clr = blue;
+            }
+          } else {
+            if (owner==1) {
+              clr = yell;
+            } else {
+              clr = pink;
+            }
+          }
+        } else {
+        clr = cr;
+        }
         switch (array[cl-1][ch-1]) {
-          case 1: if (ci) { System.out.print("+"); ci = false; } else { System.out.print("+"); ci = true; } break;
-          case 2: if (ci) { System.out.print("#"); ci = false; } else { System.out.print("#"); ci = true; } break;
-          case 3: if (ci) { System.out.print("^"); ci = false; } else { System.out.print("^"); ci = true; } break;
-          default: if (c2) { if (ci) { System.out.print("o"); ci = false; } else { System.out.print(" "); ci = true; } } break;
+          case 1: if (ci) { System.out.print(clr+"+"+cr); ci = false; } else { System.out.print(clr+"+"+cr); ci = true; } break;
+          case 2: if (ci) { System.out.print(clr+"#"+cr); ci = false; } else { System.out.print(clr+"#"+cr); ci = true; } break;
+          case 3: if (ci) { System.out.print(clr+"^"+cr); ci = false; } else { System.out.print(clr+"^"+cr); ci = true; } break;
+          default: if (ci) { if (c2){System.out.print("o");} else {System.out.print(" ");} ci = false; } else { System.out.print(" "); ci = true; } break;
         }
         cl++;
+      }
+      if (ch==2) {
+        System.out.print(" P1 $"+players.getMoney(1));
+      } else if (ch==3) {
+        System.out.print(" P2 $"+players.getMoney(2));
+      } else if (ch==4) {
+        System.out.print(" P1(P): "+players.getPower(1)+"/"+players.getMaxPower(1));
+      } else if (ch==5) {
+        System.out.print(" P2(P): "+players.getPower(2)+"/"+players.getMaxPower(2));
+      } else if (ch==1) {
+        System.out.print(" Quick Stats:");
       }
       ci = true;
        cl = 1;
@@ -304,7 +394,7 @@ public class MainGame {
         System.out.print(Integer.toString(lnum).substring(1,2)+" ");
       }
     }
-    System.out.println("\n(P1 $"+players.getMoney(1)+",P2 $"+players.getMoney(2)+")");
+    System.out.println("\n(Current Player: "+curplayer+")");
   }
   
   private static void sleep(int seconds) {
@@ -315,5 +405,24 @@ public class MainGame {
     //Quick game sleep method
     try { Thread.sleep((int)seconds*1000); } catch (Exception ex) {}
   }
+  
+  private static int calcIncome() {
+    //Calculates a players income
+    int cx = 1;
+    int cy = 1;
+    int income = 0;
+    while (cx<=length) {
+      while (cy<=height) {
+        if (items.isItem(cx,cy)){
+          income += Stats.getIncome(items.getItem(cx,cy));
+        }
+        cy++;
+      }
+      cy=1;
+      cx++;
+    }
+    return income;
+  }
+  
 }
     
