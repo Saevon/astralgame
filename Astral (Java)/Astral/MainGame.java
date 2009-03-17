@@ -123,18 +123,17 @@ public class MainGame {
       newMap();
       players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
-      addItem(1,1,"#");
-      addItem(length,height,"#");
       String spr = System.getProperty("file.separator");
       String dir = System.getProperty("user.dir")+spr+"Astral";
       try {
       Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
       } catch (Exception ex) {
-        System.out.println("Failed permission change!");
       }
       new File(dir+spr+"data"+spr+"items.db").delete();
       items.create(1,1,"#",1,Stats.getMaxHP("#"));
       items.create(length,height,"#",2,Stats.getMaxHP("#"));
+      addItem(1,1,"#");
+      addItem(length,height,"#");
       while (true==true) {
         localTasks();
       }
@@ -147,7 +146,8 @@ public class MainGame {
      * 1) Draw Map and CMD prompt
      * 2) Checks entered command
      * 3) Executes command
-     * 4) Re-Draws Map and CMD prompt
+     * 4) Checks to see if won
+     * 5) Re-Draws Map and CMD prompt
      */
     if (turnphase==4) {
     players.addMoney(curplayer,calcIncome());
@@ -159,6 +159,14 @@ public class MainGame {
     boolean allowed = cmdCheck(usercmd);
     if (allowed) {
       cmdRun(usercmd);
+    }
+    if (!items.isItem(1,1)) {
+      System.out.println(pink+"\n\nPlayer 2 has won!!!"+cr);
+      System.exit(0);
+    }
+    if (!items.isItem(length,height)) {
+      System.out.println(yell+"\n\nPlayer 1 has won!!!"+cr);
+      System.exit(0);
     }
   }
   
@@ -421,8 +429,6 @@ public class MainGame {
     String ac = "";
     int ch = 1;
     int cl = 1;
-    boolean c2 = true;
-    boolean ci = true;
     String clr;
     int pl1money = players.getMoney(1);
     int pl2money = players.getMoney(2);
@@ -473,7 +479,7 @@ public class MainGame {
           case 1: System.out.print(ac+clr+"+"+cr); break;
           case 2: System.out.print(ac+clr+"#"+cr); break;
           case 3: System.out.print(ac+clr+"^"+cr); break;
-          default: if (ci) { if (c2){System.out.print("o");} else {System.out.print(" ");} ci = false; } else { System.out.print(" "); ci = true; } break;
+          default: if((cl%2==1)&&(ch%2==1)) { System.out.print("o"); } else { System.out.print(" "); } break;
         }
         cl++;
       }
@@ -488,10 +494,8 @@ public class MainGame {
       } else if (ch==1) {
         System.out.print(" Quick Stats:");
       }
-      ci = true;
        cl = 1;
        ch++;
-       c2 = !c2;
       System.out.println();
     }
     System.out.print("  ");
