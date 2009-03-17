@@ -175,12 +175,21 @@ public class MainGame {
   private static boolean cmdCheck(String uc) {
     //Checks if command is allowed
     boolean result = false;
+    String tempsymbol = "";
     if (uc.indexOf("buy")!=-1) {
       if (turnphase == 1) {
-      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
-      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
-      int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
-      String tempsymbol = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+        int xcoord = 0;
+    int ycoord = 0;
+        try {
+      tempsymbol = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+        } catch (Exception ex) {
+          tempsymbol = "+";
+          xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+          ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+        }
+      int cost = Stats.getCost(tempsymbol);          
       if ( (tempsymbol.equals("+")) || ((xcoord%2==1)&&(ycoord%2==1)) ) {
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
@@ -220,7 +229,7 @@ public class MainGame {
         sleep(0.8);
       }
       } else {
-        System.out.println(cr+red+"Can't be sold!"+cr);
+        System.out.println(cr+red+"No item found!"+cr);
         sleep(0.8);
       }
       } else {
@@ -273,11 +282,20 @@ public class MainGame {
   private static void cmdRun(String uc) {
     //Executes specified command
     if (uc.indexOf("buy")!=-1) {
-      int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      String sym = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      try {
+      sym = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
+      xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+        } catch (Exception ex) {
+          sym = "+";
+          xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+          ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+        }
+      int cost = Stats.getCost(sym);
       players.addMoney(curplayer, -cost);
-      int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
-      int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
-      String sym = uc.substring(uc.indexOf(",")-1,uc.indexOf(","));
       addItem(xcoord,ycoord,sym);
       items.create(xcoord,ycoord,sym,curplayer,Stats.getMaxHP(sym));
       System.out.println("Bought!");
@@ -304,7 +322,12 @@ public class MainGame {
     } else if (uc.indexOf("status")!=-1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1));
-      System.out.println(items.getInfo(xcoord,ycoord));
+      int owner = items.getPlayer(xcoord,ycoord);
+      if (owner==1) {
+      System.out.println(yell+items.getInfo(xcoord,ycoord)+cr);
+      } else {
+        System.out.println(yell+items.getInfo(xcoord,ycoord)+cr);
+      }
       SimpleIO.prompt("(Press Enter)");
       SimpleIO.readLine();
     } else if (uc.indexOf("done")!=-1) {
@@ -476,7 +499,7 @@ public class MainGame {
         clr = cr;
         }
         switch (array[cl-1][ch-1]) {
-          case 1: toprint=toprint+ac+clr+"+"+cr; break;
+          case 1: if(ch%2==0) { toprint=toprint+ac+clr+"|"+cr; } else { toprint=toprint+ac+clr+"-"+cr; } break;
           case 2: toprint=toprint+ac+clr+"#"+cr; break;
           case 3: toprint=toprint+ac+clr+"^"+cr; break;
           default: if((cl%2==1)&&(ch%2==1)) { toprint=toprint+"o"; } else { toprint=toprint+" "; } break;

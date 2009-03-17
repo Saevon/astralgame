@@ -15,7 +15,7 @@ public class Items {
   /*
    * Item data is stored in \data\items.db
    * The format is:
-   * e.x 0,1;#,1,15
+   * e.x 0'1;#,1,15
    * 0 - x-coord
    * 1 - y-coord
    * ; - separator (default)
@@ -27,7 +27,7 @@ public class Items {
   
   public void create(int x, int y, String symbol, int player, int hp) {
     //Creats a new item
-    String text = Integer.toString(x)+","+Integer.toString(y)+";"+symbol+
+    String text = Integer.toString(x)+"'"+Integer.toString(y)+";"+symbol+
                   ","+Integer.toString(player)+","+Integer.toString(hp);
     write(x, y, text);
   }
@@ -147,7 +147,7 @@ public class Items {
     String dir = System.getProperty("user.dir")+spr+"Astral";
     RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     try {
-    while (((str = in.readLine()).indexOf(x+","+y))==-1) {
+    while (((str = in.readLine()).indexOf(x+"'"+y))==-1) {
     }
     if (type.equals("HP")) {
       value = str.substring(str.lastIndexOf(",")+1);
