@@ -434,8 +434,7 @@ public class MainGame {
     int pl2money = players.getMoney(2);
     int pl1power = players.getPower(1);
     int pl2power = players.getPower(2);
-    String toprint = "";
-    System.out.print("\n");
+    String toprint = "\n";
     while (ch<=height) {
       if (ch<10) {
     toprint=toprint+ch;
@@ -499,16 +498,16 @@ public class MainGame {
        ch++;
        toprint=toprint+"\n";
     }
-    System.out.print(toprint);
-    System.out.print("  ");
+    toprint=toprint+"  ";
     for (int lnum = 1; lnum<=length; lnum++) {
       if (lnum<10) {
-    System.out.print(lnum+" ");
+    toprint=toprint+lnum+" ";
       } else {
-        System.out.print(Integer.toString(lnum).substring(1,2)+" ");
+        toprint=toprint+Integer.toString(lnum).substring(1,2)+" ";
       }
     }
-    System.out.println("\n(Current Player: "+curplayer+")");
+    toprint=toprint+"\n(Current Player: "+curplayer+")";
+    System.out.println(toprint);
   }
   
   private static void sleep(int seconds) {
