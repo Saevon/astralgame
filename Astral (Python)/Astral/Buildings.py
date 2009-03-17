@@ -17,9 +17,9 @@
 ["DESC"] = "" # descriptions
 #----------SAMPLE----------#
 
-"Wizards Cottage"
+"Wizard Cottage"
 ["TYPE"] = "B"
-["PRE"] = []
+["PRE"] = [""]
 ["SYMB"] = "C"
 ["IMAGE"] = []
 ["HP"] = 150
@@ -27,8 +27,22 @@
 ["MP"] = 50
 ["RES"] = 0
 ["FIX"] = 2
-["COST"] = 500
-["OPT"] = []
+["COST"] = 0
+["OPT"] = ["SPECIAL: Wizard Tower"]
+["DESC"] = ""
+
+"Wizard Tower"
+["TYPE"] = "B"
+["PRE"] = [""]
+["SYMB"] = "C"
+["IMAGE"] = []
+["HP"] = 200
+["MAXHP"] = 200
+["MP"] = 75
+["RES"] = 3
+["FIX"] = 3
+["COST"] = 0
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
 ["DESC"] = ""
 
 "Astral Line"
@@ -56,21 +70,21 @@
 ["RES"] = 0
 ["FIX"] = 2
 ["COST"] = 30
-["OPT"] = ["SPECIAL: Build Village Schools"]
+["OPT"] = ["SPECIAL: Build Village Schools", "SPECIAL: Upgrade Resistance Lvl 1"]
 ["DESC"] = ""
 
 "Mining Camp"
 ["TYPE"] = "B"
-["PRE"] = ["Village"]
+["PRE"] = ["RESEARCH: Gem Mining"]
 ["SYMB"] = "M"
 ["IMAGE"] = []
 ["HP"] = 5
-["MAXHP"] = 10
+["MAXHP"] = 15
 ["MP"] = 10
-["RES"] = 5
+["RES"] = 0
 ["FIX"] = 3
 ["COST"] = 50
-["OPT"] = []
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
 ["DESC"] = ""
 
 "Void Crystal"
@@ -84,19 +98,103 @@
 ["RES"] = 5
 ["FIX"] = 2
 ["COST"] = 30
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
+["DESC"] = ""
+
+"Mage's Tent"
+["TYPE"] = "B"
+["PRE"] = ["Wizard Tower"]
+["SYMB"] = "*"
+["IMAGE"] = []
+["HP"] = 1
+["MAXHP"] = 1
+["MP"] = 0
+["RES"] = 4
+["FIX"] = 0
+["COST"] = 50
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
+["DESC"] = ""
+
+"Castle"
+["TYPE"] = "B"
+["PRE"] = ["Wizard Tower", "Mining Camp"]
+["SYMB"] = "#"
+["IMAGE"] = []
+["HP"] = 50
+["MAXHP"] = 75
+["MP"] = 20
+["RES"] = 0
+["FIX"] = 5
+["COST"] = 100
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
+["DESC"] = ""
+
+"Library"
+["TYPE"] = "B"
+["PRE"] = ["Wizard Tower"]
+["SYMB"] = "L"
+["IMAGE"] = []
+["HP"] = 10
+["MAXHP"] = 1000
+["MP"] = 30
+["RES"] = 0
+["FIX"] = 25
+["COST"] = 150
 ["OPT"] = []
+["DESC"] = ""
+
+"Mansion"
+["TYPE"] = "B"
+["PRE"] = ["Wizard Tower"]
+["SYMB"] = "^"
+["IMAGE"] = []
+["HP"] = 20
+["MAXHP"] = 25
+["MP"] = 50
+["RES"] = 0
+["FIX"] = 3
+["COST"] = 130
+["OPT"] = []
+["DESC"] = ""
+
+"Barricade"
+["TYPE"] = "BAL"
+["PRE"] = ["UPDATE"]
+["SYMB"] = "WWW"
+["IMAGE"] = []
+["HP"] = 10
+["MAXHP"] = 50
+["MP"] = 0
+["RES"] = 0
+["FIX"] = 2
+["COST"] = 25
+["OPT"] = ["SPECIAL: Palisade", "SPECIAL: Upgrade Resistance Lvl 1"]
+["DESC"] = ""
+
+"Palisade"
+["TYPE"] = "BAL"
+["PRE"] = ["UPDATE"]
+["SYMB"] = "WWW"
+["IMAGE"] = []
+["HP"] = 15
+["MAXHP"] = 100
+["MP"] = 0
+["RES"] = 0
+["FIX"] = 4
+["COST"] = 100
+["OPT"] = ["SPECIAL: Wall", "SPECIAL: Upgrade Resistance Lvl 1"]
 ["DESC"] = ""
 
 "Wall"
 ["TYPE"] = "BAL"
-["PRE"] = ["Mining Camp"]
+["PRE"] = ["UPDATE"]
 ["SYMB"] = "WWW"
 ["IMAGE"] = []
-["HP"] = 10
-["MAXHP"] = 100
+["HP"] = 20
+["MAXHP"] = 200
 ["MP"] = 0
 ["RES"] = 0
 ["FIX"] = 3
-["COST"] = 25
-["OPT"] = []
+["COST"] = 200
+["OPT"] = ["SPECIAL: Upgrade Resistance Lvl 1"]
 ["DESC"] = ""

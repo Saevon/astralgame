@@ -12,13 +12,45 @@ from GetFileDir import get_file_dir
 from os import *
 
 ################################################################################
+def replace(word, key1, key2):
+    final_word = ""
+    for char in word:
+        if char == key1:
+            final_word += key2
+        else:
+            final_word += char
+    return final_word
+
+################################################################################
+def pos_dir(x_loc, y_loc):
+    global field
+    pos = []
+    if field.cell(x_loc + 1, y_loc) != "":
+        pos.append( "x_loc += 1" )
+    elif (x_loc + 1) % 2 == 0 and y_loc % 2 == 0:
+        pos.append( "x_loc += 1" )
+    if field.cell(x_loc - 1, y_loc) != "":
+        pos.append( "x_loc -= 1" )
+    elif (x_loc - 1) % 2 == 0 and y_loc % 2 == 0:
+        pos.append( "x_loc -= 1" )
+    if field.cell(x_loc, y_loc + 1) != "":
+        pos.append( "y_loc += 1" )
+    elif x_loc % 2 == 0 and (y_loc + 1) % 2 == 0:
+        pos.append( "y_loc += 1" )
+    if field.cell(x_loc, y_loc - 1) != "":
+        pos.append( "y_loc -= 1" )
+    elif x_loc % 2 == 0 and (y_loc - 1) % 2 == 0:
+        pos.append( "y_loc -= 1" )
+    return pos
+
+################################################################################
 def clear(num = 15):
     for i in range(num):
         print "\n"
 ################################################################################	
 
 game = False       # should the gameplay start?
-fail = False
+fail = False       # for synx typing
 MAX_NAME_LEN = 10  # max possible name for a player
 MAX_COLOR_LEN = 10 # max possible name for a color
 COLOR = 15         # the standard Menu coloring
@@ -405,6 +437,9 @@ while choice != "0" or choice.lower() == "quit":
             
         effect_field = Maze("#")
         effect_field.clear(options[0], options[1], value = "")
+        
+        attack_field = Maze("#")
+        attack_field.clear(options[0], options[1], value = "")
             
         x = field.sizex()
         y = field.sizey()
@@ -422,7 +457,7 @@ while choice != "0" or choice.lower() == "quit":
         for player in range(options[3]):
             myself = [player + 1]
             exec "player%i = Player(%i, options[5][player][1], options[5][player][0], gold = options[2], allies = myself[:])" % (player + 1, player + 1)
-            exec "player%i.add_building(BUILDING['Wizards Cottage'].copy(), usable[player][0], usable[player][1])" % (player + 1)
+            exec "player%i.add_building(BUILDING['Wizard Cottage'].copy(), usable[player][0], usable[player][1])" % (player + 1)
             field.setcell(usable[player][0], usable[player][1], player + 1)
             ally_invite[player + 1] = []
         player1.gold += 50
@@ -475,6 +510,10 @@ while choice != "0" or choice.lower() == "quit":
         # Loop for all players
         
         continue_option = False
+        continue_building_till_stop = False
+        x_loc = ""
+        y_loc = ""
+        direction = ""
         
         while choice != "quit" and choice != "q" and choice != "exit":
             
@@ -572,6 +611,93 @@ while choice != "0" or choice.lower() == "quit":
                 print "Type 'help' for general help with the game"
                 choice = raw_input(": ")
               
+                
+                
+            #ATTACK CONTINUE
+            ####################################################################
+            elif continue_option == "attack":
+                #choose location
+                temp = choice
+                choice = ""
+                if temp == "ATTACK: Basic Magics":
+                    exec "allies = player%i.allies[:]" %(player)
+                    for ally in allies:
+                        exec "other_ally_list = player%i.allies[:]" % (ally)
+                        if player not in other_ally_list:
+                            allies.remove(ally)
+                    if player not in allies:
+                        allies.append(player)
+                    allies.sort()
+                    while 1 and x_loc == "" and y_loc == "":
+                        
+                        choice = raw_input("(Type 'cancel' to quit)\n(format: 'x,y')\nSelect Place to Attack From: ").lower()
+                        if choice == "cancel" or choice == "quit" or choice == "q" or choice == "exit":
+                            continue_option = False
+                            choice = ""
+                            break
+                        
+                        choice = choice.split(",")
+                        can_use = False
+                        if len(choice) == 2 and choice[0].isdigit() and choice[1].isdigit():
+                            x_loc = int(choice[0])
+                            y_loc = int(choice[1])
+                            if field.cell(x_loc,y_loc) == player and attack_field.cell(x_loc,y_loc) == "":pass
+                            elif attack_field.cell(x_loc,y_loc) != "":
+                                set_color(12)
+                                print "You already attacked with this building..."
+                                raw_input("Press Enter to Continue: ")
+                                set_color(COLOR)
+                                choice = temp
+                                x_loc = ""
+                                y_loc = ""
+                                break
+                            else:
+                                set_color(12)
+                                print "Square Not Possible"
+                                raw_input("Press Enter to Continue: ")
+                                set_color(COLOR)
+                                choice = temp
+                                x_loc = ""
+                                y_loc = ""
+                                break
+                    if field.cell(x_loc,y_loc) == player and attack_field.cell(x_loc,y_loc) == "":
+                        choice = temp
+                        continue_option = "attack2"
+                    
+            elif continue_option == "attack2":
+                #choose direction
+                print "LOC: %i, %i" % (x_loc, y_loc)
+                possible = pos_dir(x_loc,y_loc)
+                pos_input = {}
+                if "x_loc += 1" in possible:
+                    print "Right"
+                    pos_input["right"] = "x_loc += 1"
+                if "x_loc -= 1" in possible:
+                    print "Left"
+                    pos_input["left"] = "x_loc -= 1"
+                if "y_loc += 1" in possible:
+                    print "Up"
+                    pos_input["up"] = "y_loc += 1"
+                if "y_loc -= 1" in possible:
+                    print "Down"
+                    pos_input["down"] = "y_loc -= 1"
+                    
+                print " \nQuit"
+                if len(possible) > 1:
+                    dir_choice = raw_input("Which Direction: ").lower()
+                    if dir_choice in pos_input.keys():
+                        direction = pos_input[dir_choice]
+                        continue_option = False
+                    if dir_choice == "cancel":
+                        continue_option = False
+                        choice = ""
+                    else:
+                        choice = temp
+                elif len(possible) == 1:
+                    direction = possible[0]
+                    continue_option = False
+                else:
+                    continue_option = "attack"
             # FIX CONTINUE
             #if one of the menu's need the map shown, all must end with "continue_option = False" and "choice = ''"
             ####################################################################  
@@ -579,8 +705,9 @@ while choice != "0" or choice.lower() == "quit":
                 exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
                 if max_heal == 0 and cur_gold / loc_building["FIX"] != 0:
                     while max_heal != "cancel":
-                        print "HP:    ",
                         exec "loc_building = player%i.buildings[ (choice[1][0], choice[1][1]) ].copy()" % (player)
+                        print "COST Per HP: " + loc_building["FIX"] + " MP"
+                        print "HP:          ",
                         print loc_building["HP"],
                         print "/",
                         print loc_building["MAXHP"]
@@ -644,8 +771,6 @@ while choice != "0" or choice.lower() == "quit":
                 if player not in allies:
                     allies.append(player)
                 allies.sort()
-                print allies, type(allies)
-                print play, type(player)
                 while 1:
                     
                     print ""
@@ -656,7 +781,9 @@ while choice != "0" or choice.lower() == "quit":
                     choice = raw_input("(Type 'cancel' to quit)\n(format: 'x,y')\nSelect Place to Build: ").lower()
                     if choice == "cancel" or choice == "quit" or choice == "q" or choice == "exit":
                         continue_option = False
+                        continue_building_till_stop = False
                         break
+                    
                     choice = choice.split(",")
                     # check if input was correct
                     can_build = False
@@ -678,7 +805,11 @@ while choice != "0" or choice.lower() == "quit":
                                     can_build = True
                                 elif (x % 2 != 0 and y % 2 == 0) and (field.cell(x+2,y) in allies or field.cell(x-2,y) in allies):
                                     can_build = True
+                                if x % 2 == 0 and y % 2 == 0:
+                                    can_build = False
                             if x % 2 != 0 and y % 2 != 0:
+                                can_build = False
+                            if x < 0 or x >= field.sizex() or y < 0 or y >= field.sizex():
                                 can_build = False
                             
                         if not can_build:
@@ -692,9 +823,16 @@ while choice != "0" or choice.lower() == "quit":
                             exec "player%i.gold -= BUILDING[name]['COST']" % (player)
                             exec "player%i.add_building(BUILDING[name].copy(), x, y)" % (player)
                             field.setcell(x, y, player)
-                            continue_option = False
+                            exec "cur_gold = player%i.gold" % (player)
+                            if not continue_building_till_stop or cur_gold < BUILDING[name]['COST']:
+                                continue_option = False
+                                continue_building_till_stop = False
                             break
-                        
+                            
+                    elif choice == ["continue"]:
+                        continue_building_till_stop = True
+                        break
+                    
                     else:
                         set_color(12)
                         print "\nWrong Format"
@@ -703,7 +841,12 @@ while choice != "0" or choice.lower() == "quit":
                         break
                     
                 choice = ""
-                
+            #SURRENDER CONTINUE
+            ####################################################################
+            elif continue_option == "done":
+                choice = "done"
+                continue_option = False
+            
             # HELP
             ####################################################################
             if len(choice) >= 4 and choice[:4].lower() == "help":
@@ -862,7 +1005,7 @@ while choice != "0" or choice.lower() == "quit":
                             choice = ""
             
                     
-            # STATS UPDATE
+            # STATS
             # Shows stats of buildings
             ####################################################################
             elif len(choice) >= 5 and choice[:5].lower() == "stats":
@@ -906,7 +1049,7 @@ while choice != "0" or choice.lower() == "quit":
                                 else:
                                     print "Symbol :            ",
                                     set_color(color_num(player_color))
-                                    print loc_building["SYMB"]
+                                    print loc_building["SYMB"][-1]
                                     set_color(COLOR)
                                 #print "",
                                 #print loc_building["IMAGE"]
@@ -942,10 +1085,13 @@ while choice != "0" or choice.lower() == "quit":
                                     print "2) Fix"
                                     print "3) Max Possible Fix"
                                 
+                                exec "cur_pos_research = player%i.poss_research(include_special = True)" % (player)
                                 for item in range(len(loc_building["OPT"])):
-                                    if loc_building["OPT"][item] not in loc_building["OPT-DONE"]:
+                                    if loc_building["OPT"][item] not in loc_building["OPT-DONE"] and loc_building["OPT"][item] in cur_pos_research:
                                         print "%i) %s" % (item + 4, loc_building["OPT"][item]),
                                         print ": COST " + str(RESEARCH[loc_building["OPT"][item]]["COST"]) + " MP"
+                                        print ""
+                                        print RESEARCH[loc_building["OPT"][item]]["DESC"]
                                     else:print ""
                                 
                                 print "\n0) Cancel"
@@ -967,9 +1113,14 @@ while choice != "0" or choice.lower() == "quit":
                                     max_heal = "max"
                                     
                                 elif stats_choice > 3 and stats_choice <= len(loc_building["OPT"]) + 3:
-                                    if loc_building["OPT"][stats_choice] not in loc_building["OPT-DONE"]:
-                                        pass
+                                    if loc_building["OPT"][stats_choice - 4] not in loc_building["OPT-DONE"] and RESEARCH[ loc_building["OPT"][stats_choice - 4] ]["COST"] <= cur_gold and loc_building["OPT"][item] in cur_pos_research:
+                                        name = loc_building["OPT"][stats_choice - 4]
                                         # Research for options for these buildings
+                                        if "EXEC" in RESEARCH[name].keys():
+                                            lines = RESEARCH[name]["EXEC"].split("\n")
+                                            for line in lines:
+                                                exec line % (player)
+                                        
                 else:fail = True
 
             # ALLY-MENU
@@ -1181,6 +1332,7 @@ while choice != "0" or choice.lower() == "quit":
                         print "--------------------"
                         print mana_gain
                         print ""
+                        num += 1
                         
                     if type(items[item]["MP"]) == type("str"):
                         print items[item]["NAME"]
@@ -1230,6 +1382,10 @@ while choice != "0" or choice.lower() == "quit":
             ####################################################################
             elif choice.lower() == "end turn" or choice.lower() == "done":
                 # changes to next player
+                attack_field = Maze("#")
+                attack_field.clear(field.sizex(), field.sizey(), "")
+                
+                
                 player += 1
                 while player not in Player.live_players:
                     player += 1
@@ -1286,6 +1442,17 @@ while choice != "0" or choice.lower() == "quit":
                 #adds score
                 # UPDATE
 
+            # SURRENDER
+            ####################################################################
+            elif choice.lower() == "surrender":
+                exec "temp = player%i.buildings.keys()" % (player)
+                for key in temp:
+                    field.setcell(key[0], key[1], "")
+                exec "player%i.buildings = {}" % (player)
+                exec "player%i.build_list = {}" % (player)
+                exec "player%i.isalive" % (player)
+                continue_option = "done"
+                
             # SAVE
             ####################################################################
             elif len(choice) >= 4 and choice.lower()[:4].lower() == "save":
@@ -1301,12 +1468,16 @@ while choice != "0" or choice.lower() == "quit":
                 save_data += 'field.clear(options[0], options[1], value = "")\n'
                 save_data += "effect_field = Maze('#')\n"
                 save_data += 'effect_field.clear(options[0], options[1], value = "")\n'
+                save_data += "attack_field = Maze('#')\n"
+                save_data += 'attack_field.clear(options[0], options[1], value = "")\n'
                 for x in range(field.sizex()):
                     for y in range(field.sizey()):
                         if field.cell(x,y) != "":
                             save_data += "field.setcell(%i, %i, %s)\n" % (x, y, field.cell(x,y))
                         if effect_field.cell(x,y) != "":
                             save_data += "effect_field.setcell(%i, %i, %s)\n" % (x, y, effect_field.cell(x,y))
+                        if attack_field.cell(x,y) != "":
+                            save_data += "attack_field.setcell(%i, %i, %s)\n" % (x, y, attack_field.cell(x,y))            
                 for person in Player.live_players[:]:
                     exec "save_color = player%i.color" % (person)
                     exec "save_name = player%i.name" % (person)
@@ -1358,6 +1529,132 @@ while choice != "0" or choice.lower() == "quit":
             # if the person misspelled somethin, not a known combination
             ####################################################################
             elif choice.lower() == "":pass
+            
+            # ATTACK
+            ####################################################################
+            elif len(choice) >= 6 and choice[:6].lower() == "attack":
+                
+                name = choice.split(" ")
+                # choosing of the attack
+                if len(name) > 2:
+                    name[0] = name[0].upper()
+                    for times in range(len(name) - 1):
+                        name[times+1] = name[times+1].capitalize()
+                    temp = ""
+                    for item in name:
+                        temp += item + " "
+                    temp = temp[:-1]
+                    name = temp
+                else:
+                    # choosing name, becomes "" if cancelled
+                    name = ""
+                    exec "cur_gold = player%i.gold" % (player)
+                    exec "cur_attacks = player%i.attacks.keys()" % (player)
+                    if len(name) == 0:
+                        print "\n--> Attack Menu <--"
+                        length = 0
+                        for item in cur_attacks:
+                            if len(item) > length:
+                                length = len(item)
+                        for item in range(len(cur_attacks)):
+                            if RESEARCH[ cur_attacks[item] ]["COST"] > cur_gold:
+                                set_color(12)
+                                #red
+                            print "%i) %s" % (item + 1, cur_attacks[item]),
+                            print " " * (length - len(cur_attacks[item])) + "-",
+                            print RESEARCH[ cur_attacks[item] ]["COST"],
+                            print "MP"
+                            print "" + RESEARCH[ cur_attacks[item] ]["DESC"]
+                            set_color(COLOR)
+                        print "\n0) QUIT"
+                            
+                        name = raw_input("\n: ").lower()
+                        if name.isdigit() and int(name) > 0 and int(name) <= len(cur_attacks):
+                            name = cur_attacks[int(name) - 1]
+                    
+                exec "cur_attacks = player%i.attacks.copy()" % (player)
+                if name in cur_attacks and continue_option != "attack2" and (x_loc == "" or y_loc == "" or direction == ""):
+                    player_did_attack = True
+                    continue_option = "attack"
+                    choice = name
+                    x_loc = ""
+                    y_loc = ""
+                    name = ""
+                elif name in cur_attacks and continue_option == "attack2":
+                    choice = name
+                    name = ""
+                if name not in cur_attacks:
+                    name = ""
+                    
+                #choose power
+                if name != "":
+                    exec "cur_power_max = player%i.attacks[name]['MAX']" % (player)
+                    while 1:
+                        print "Max Power: " + str(cur_power_max) + " MP"
+                        print "How Much Power Do You Want To Use?"
+                        power = raw_input(": ")
+                        if power == "cancel" or power == "q" or power == "quit":
+                            power = ""
+                            name = ""
+                            break
+                        if power.isdigit() and int(power) <= cur_power_max and int(power) > 0 :
+                            power = int(power)
+                            break
+                    
+                if name != "":
+                    attack_field.setcell(x_loc, y_loc, 1)
+                    power_field = Maze("#")
+                    power_field.clear(field.sizex(), field.sizey(), 0)
+                
+                ################################################################
+                if name == "ATTACK: Basic Magics":
+                    exec "cur_allies = player%i.allies[:]" % (player)
+                    while power > 0:
+                        temp = direction
+                        temp = replace(temp, "+","!")
+                        temp = replace(temp, "-","+")
+                        temp = replace(temp, "!","-")
+                        exec direction
+                        possible = pos_dir(x_loc, y_loc)
+                        if temp in possible:
+                            possible.remove( temp )
+                        power_field.setcell(x_loc, y_loc, power)
+                        if field.cell(x_loc, y_loc) != "" and field.cell(x_loc, y_loc) not in cur_allies:
+                            exec "temp_build = player%i.buildings[ (x_loc, y_loc) ].copy()"% (field.cell(x_loc, y_loc))
+                            power -= temp_build["RES"]
+                            power -= temp_build["HP"]
+                        elif field.cell(x_loc, y_loc) in cur_allies:
+                            if x_loc % 2 == 0 and y_loc % 2 == 0:
+                                power = 0
+                        if len(possible) >= 1:
+                            direction = randint(0,len(possible) - 1)
+                            direction = possible[direction]
+                        else:
+                            power = 0
+                
+                if name != "":
+                    # Distributes power
+                    ###############################################################
+                    exec "cur_allies = player%i.allies[:]" % (player)
+                    for x in range(field.sizex()):
+                        for y in range(field.sizey()):
+                            if field.cell(x,y) != "" and power_field.cell(x,y) != 0:
+                                power = power_field.cell(x,y)
+                                person = field.cell(x,y)
+                                if person not in cur_allies:
+                                    exec "cur_hp = player%i.buildings[ (x,y) ]['HP']" % (person)
+                                    exec "cur_res = player%i.buildings[ (x,y) ]['RES']" % (person)
+                                    if power - (cur_res + cur_hp) >= 0:
+                                        exec "player%i.capt_building( x, y, player%i )" % (player, person)
+                                        exec "player%i.buildings[ (x,y) ]['HP'] = (player%i.buildings[ (x,y) ]['HP'] / 10) + 1" % (player, player)
+                                        field.setcell(x,y,player)
+                                    elif power - cur_res >= 0:
+                                        exec "player%i.buildings[ (x,y) ]['HP'] = player%i.buildings[ (x,y) ]['HP'] - (power - cur_res)" % (person, person)
+            
+                    direction = ""
+                    x_loc = ""
+                    y_loc = ""
+            ####################################################################
             else:
                 fail = True
         

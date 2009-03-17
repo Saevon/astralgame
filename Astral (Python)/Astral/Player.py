@@ -59,36 +59,50 @@ class Player():
         enemy is a str"""
         
         if (x_loc, y_loc) in enemy.buildings.keys():
-            build = enemy.buildings[ (x_loc, y_loc) ]
-            self.add_building(build, x_loc, y_loc)
+            build = enemy.buildings[ (x_loc, y_loc) ].copy()
             enemy.dest_building(x_loc, y_loc)
+            self.add_building(build, x_loc, y_loc)
             
-    def poss_research(self):
+    def poss_research(self, include_special = False):
         """poss_research(...) --> list
         Returns all possible research items whoses pre-requisites have been met.
         Unless they have 'SPECIAL' in them"""
         possible = []
         for item in RESEARCH:
-            if "SPECIAL" not in item:
+            if "SPECIAL" not in item or include_special:
+                is_pos = True
                 for prequisite in RESEARCH[item]["PRE"]:
-                    if prequisite in self.build_list.keys() or prequisite in self.research:
-                        if item not in self.research:
-                            possible.append(item.strip('"').strip("'"))
-                            break
-            if len(RESEARCH[item]["PRE"]) == 0:
-                possible.append(item.strip('"').strip("'"))
+                    if is_pos:
+                        if " OR " in prequisite:
+                            temp = prequisite.split(" OR " )
+                            is_pos = False
+                            for or_pre in temp:
+                                if or_pre in self.build_list.keys() or or_pre in self.research:
+                                    is_pos = True
+                        elif (prequisite not in self.build_list.keys() and prequisite not in self.research) or item in self.research:
+                            is_pos = False
+                if is_pos:
+                    possible.append(item.strip('"').strip("'"))
         return possible
     
     def poss_building(self):
         """poss_building(...) --> list
-        Returns all possible buildings whoses pre-requisites have been met"""
+        Returns all possible buildings whose pre-requisites have been met"""
         possible = []
         for item in BUILDING:
+            is_pos = True
             for prequisite in BUILDING[item]["PRE"]:
-                if prequisite in self.build_list.keys() or prequisite in self.research:
-                    possible.append(item.strip('"').strip("'"))
-                    break
-            if len(BUILDING[item]["PRE"]) == 0:
+                for prequisite in BUILDING[item]["PRE"]:
+                    if is_pos:
+                        if " OR " in prequisite:
+                            temp = prequisite.split(" OR " )
+                            is_pos = False
+                            for or_pre in temp:
+                                if or_pre in self.build_list.keys() or or_pre in self.research:
+                                    is_pos = True
+                        elif (prequisite not in self.build_list.keys() and prequisite not in self.research) or item in self.research:
+                            is_pos = False
+            if is_pos:
                 possible.append(item.strip('"').strip("'"))
         return possible
     
@@ -105,19 +119,16 @@ if __name__ == "__main__":
     player1 = Player(1, "Red", "SirJ")
     player1.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 10, 10)
     player1.add_building({"NAME" : "Village", "RES" : 10, "PRE" : []}, 9, 10)
-    player1.dest_building(10,10)
-    player2 = Player(2, "Blue", "Dim")
-    player1.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 6, 7)
-    player2.add_building({"NAME" : "House", "RES" : 10, "PRE" : []}, 4, 7)
+    player1.add_building({"NAME" : "Wizard Tower", "RES" : 10, "PRE" : []}, 6, 7)
+    player1.add_building({"NAME" : "Void Crystal", "RES" : 10, "PRE" : []}, 4, 7)
     player1.add_building({"NAME" : "Mining Camp", "RES" : 10, "PRE" : []}, 1, 2)
-    player1.capt_building(4, 7, player2)
+    player2 = Player(2, "Red", "SirJ")
+    player2.capt_building( 10, 10, player1)
     
     print player1.build_list
-    print player1.buildings
-    print ""
-    print player2.build_list
     print player2.buildings
     print "----------"
     
-    print player2.poss_research()
+    print player1.poss_research(include_special = True)
     print player1.poss_building()
+    
