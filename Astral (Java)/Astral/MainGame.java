@@ -39,6 +39,7 @@ public class MainGame {
   static int[][] array;
   static int curplayer = 1;
   static int turnphase = 1;
+  static int startmoney = 150;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -59,11 +60,12 @@ public class MainGame {
     int looper = 0;
     System.out.println("\n-A-S-T-R-A-L-");
     while (looper==0) {
-    SimpleIO.prompt(gr+"\nMAIN MENU\n"+
+    SimpleIO.prompt("\nMAIN MENU\n"+
                     "1) Start a new game\n"+
                     "2) View Help\n"+
                     "3) Set Map Size\n"+
-                    "4) Quit\n"+
+                    "4) Set Money\n"+
+                    "5) Quit\n"+
                     cmd);
     try {
      int mainchoice = Integer.parseInt(SimpleIO.readLine());
@@ -72,7 +74,8 @@ public class MainGame {
        case 1: setUpGame(); looper=0; break;
        case 2: System.out.println("(Sorry this is not yet implemented)"); sleep(1); break;
        case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); length = Integer.parseInt(ms.substring(0,ms.indexOf(","))); height = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
-       case 4: System.out.println("Thanks for playing!"); System.exit(0);
+       case 4: SimpleIO.prompt("Starting Money? "); startmoney = Integer.parseInt(SimpleIO.readLine()); break;
+       case 5: System.out.println("Thanks for playing!"); System.exit(0);
        default: System.out.println(nocmd); sleep(1); break;
       }
      } catch (Exception ex) { System.out.println(nocmd); sleep(1); }
@@ -118,8 +121,10 @@ public class MainGame {
     } else {
       array = new int[length][height];
       newMap();
-      players = new Players("Player1", "Player2", 150, 0);
+      players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
+      items.create(1,1,"#",1,Stats.getMaxHP("#"));
+      items.create(length,height,"#",2,Stats.getMaxHP("#"));
       String spr = System.getProperty("file.separator");
       String dir = System.getProperty("user.dir")+spr+"Astral";
       new File(dir+spr+"data"+spr+"items.db").delete();
@@ -141,7 +146,7 @@ public class MainGame {
     players.addMoney(curplayer,calcIncome());
     turnphase=1;
     }
-    redraw();
+    redraw(false,0,0);
     SimpleIO.prompt("\n"+cmd);
     String usercmd = SimpleIO.readLine();
     boolean allowed = cmdCheck(usercmd);
@@ -156,6 +161,7 @@ public class MainGame {
     //Checks if command is allowed
     boolean result = false;
     if (uc.indexOf("buy")!=-1) {
+      if (turnphase == 1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int cost = Stats.getCost(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
@@ -176,6 +182,10 @@ public class MainGame {
         System.out.println(cr+red+"Cant't be placed there!"+cr);
         sleep(0.8);
       }
+      } else {
+        System.out.println(cr+red+"No building during this phase!"+cr);
+        sleep(0.8);
+      }
     } else if (uc.indexOf("quit")!=-1) {
       result = true;
     } else if (uc.indexOf("exit")!=-1) {
@@ -183,6 +193,7 @@ public class MainGame {
     } else if (uc.indexOf("help")!=-1) {
       result = true;
     } else if (uc.indexOf("sell")!=-1) {
+      if (turnphase == 1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       if (items.isItem(xcoord,ycoord)) {
@@ -197,11 +208,16 @@ public class MainGame {
         System.out.println(cr+red+"Can't be sold!"+cr);
         sleep(0.8);
       }
+      } else {
+        System.out.println(cr+red+"No selling during this phase!"+cr);
+        sleep(0.8);
+      }
     } else if (uc.indexOf("status")!=-1) {
       result = true;
     } else if (uc.indexOf("done")!=-1) {
       result = true;
     } else if (uc.indexOf("fix")!=-1) {
+      if (turnphase!=2) {
       int xc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
       int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
       int maxhp = Stats.getMaxHP(items.getItem(xc,yc));
@@ -210,6 +226,19 @@ public class MainGame {
         result = true;
       } else {
         System.out.println(red+"Item's HP is already full!"+cr);
+        sleep(0.8);
+      }
+      } else {
+        System.out.println(red+"No fixing during this phase!"+cr);
+        sleep(0.8);
+      }
+    } else if (uc.indexOf("done")!=-1) {
+      result = true;
+    } else if ((uc.indexOf("attack")!=-1)||(uc.indexOf("atk")!=-1)) {
+      if (turnphase!=3) {
+      result = true;
+      } else {
+        System.out.println(red+"You have finished attacking!"+cr);
         sleep(0.8);
       }
     } else {
@@ -283,6 +312,61 @@ public class MainGame {
         int wantheal = Integer.parseInt(SimpleIO.readLine());
         players.addMoney(curplayer,-wantheal*fixcost);
         items.fix(xc,yc,wantheal);
+    } else if ((uc.indexOf("attack")!=-1)||(uc.indexOf("atk")!=-1)) {
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
+      String dir = uc.substring(uc.lastIndexOf(",")+1);
+      SimpleIO.prompt("Power(MAX="+players.getMoney(curplayer)+")? ");
+      int attpower = Integer.parseInt(SimpleIO.readLine());
+      if (attpower<=players.getMoney(curplayer)) {
+        turnphase = 2;
+        players.addMoney(curplayer,-attpower);
+        if (dir.equals("s")) {
+          if (items.getHP(xc,yc+1)<attpower) {
+            String tmpsym = items.getItem(xc,yc+1);
+            items.delete(xc,yc+1);
+            items.create(xc,yc+1,tmpsym,curplayer,1);
+            System.out.println("Captured Item!");
+          } else {
+            items.fix(xc,yc+1,-attpower);
+            System.out.println("Target's HP: "+items.getHP(xc,yc+1)+"/"+Stats.getMaxHP(items.getItem(xc,yc+1)));
+          }
+        } else if (dir.equals("n")) {
+          if (items.getHP(xc,yc-1)<attpower) {
+            String tmpsym = items.getItem(xc,yc-1);
+            items.delete(xc,yc-1);
+            items.create(xc,yc-1,tmpsym,curplayer,1);
+            System.out.println("Captured Item!");
+          } else {
+            items.fix(xc,yc-1,-attpower);
+            System.out.println("Target's HP: "+items.getHP(xc,yc-1)+"/"+Stats.getMaxHP(items.getItem(xc,yc-1)));
+          }
+        } else if (dir.equals("e")) {
+          if (items.getHP(xc+1,yc)<attpower) {
+            String tmpsym = items.getItem(xc+1,yc);
+            items.delete(xc+1,yc);
+            items.create(xc+1,yc,tmpsym,curplayer,1);
+            System.out.println("Captured Item!");
+          } else {
+            items.fix(xc+1,yc,-attpower);
+            System.out.println("Target's HP: "+items.getHP(xc+1,yc)+"/"+Stats.getMaxHP(items.getItem(xc+1,yc)));
+          }
+        } else if (dir.equals("w")) {
+          if (items.getHP(xc-1,yc)<attpower) {
+            String tmpsym = items.getItem(xc-1,yc);
+            items.delete(xc-1,yc);
+            items.create(xc-1,yc,tmpsym,curplayer,1);
+            System.out.println("Captured Item!");
+          } else {
+            items.fix(xc-1,yc,-attpower);
+            System.out.println("Target's HP: "+items.getHP(xc-1,yc)+"/"+Stats.getMaxHP(items.getItem(xc-1,yc)));
+          }
+        }
+        SimpleIO.readLine();
+      } else {
+        System.out.println(red+"Not enough money!"+cr);
+        sleep(0.8);
+    }
     }
   }
   
@@ -315,11 +399,12 @@ public class MainGame {
   }
   
   
-  private static void redraw() {
+  private static void redraw(boolean attack,int x, int y) {
     //Re-draws the map
     //Harder to understand the algorithm,
     //even I get confused :).
     //Just know it works!
+    String ac = "";
     int ch = 1;
     int cl = 1;
     boolean c2 = true;
@@ -334,6 +419,11 @@ public class MainGame {
       }
       while (cl<=length) {
         System.out.print(" ");
+        if ((cl==x)&&(ch==y)&&(attack==true)) {
+          ac = attclr;
+        } else {
+          ac = "";
+        }
         if (items.isItem(cl,ch)) {
           int maxhp = Stats.getMaxHP(items.getItem(cl,ch));
           int curhp = items.getHP(cl,ch);
@@ -362,9 +452,9 @@ public class MainGame {
         clr = cr;
         }
         switch (array[cl-1][ch-1]) {
-          case 1: if (ci) { System.out.print(clr+"+"+cr); ci = false; } else { System.out.print(clr+"+"+cr); ci = true; } break;
-          case 2: if (ci) { System.out.print(clr+"#"+cr); ci = false; } else { System.out.print(clr+"#"+cr); ci = true; } break;
-          case 3: if (ci) { System.out.print(clr+"^"+cr); ci = false; } else { System.out.print(clr+"^"+cr); ci = true; } break;
+          case 1: if (ci) { System.out.print(ac+clr+"+"+cr); ci = false; } else { System.out.print(ac+clr+"+"+cr); ci = true; } break;
+          case 2: if (ci) { System.out.print(ac+clr+"#"+cr); ci = false; } else { System.out.print(ac+clr+"#"+cr); ci = true; } break;
+          case 3: if (ci) { System.out.print(ac+clr+"^"+cr); ci = false; } else { System.out.print(ac+clr+"^"+cr); ci = true; } break;
           default: if (ci) { if (c2){System.out.print("o");} else {System.out.print(" ");} ci = false; } else { System.out.print(" "); ci = true; } break;
         }
         cl++;
