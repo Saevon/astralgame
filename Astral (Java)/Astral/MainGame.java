@@ -123,11 +123,18 @@ public class MainGame {
       newMap();
       players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
-      items.create(1,1,"#",1,Stats.getMaxHP("#"));
-      items.create(length,height,"#",2,Stats.getMaxHP("#"));
+      addItem(1,1,"#");
+      addItem(length,height,"#");
       String spr = System.getProperty("file.separator");
       String dir = System.getProperty("user.dir")+spr+"Astral";
+      try {
+      Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
+      } catch (Exception ex) {
+        System.out.println("Failed permission change!");
+      }
       new File(dir+spr+"data"+spr+"items.db").delete();
+      items.create(1,1,"#",1,Stats.getMaxHP("#"));
+      items.create(length,height,"#",2,Stats.getMaxHP("#"));
       while (true==true) {
         localTasks();
       }
@@ -213,7 +220,14 @@ public class MainGame {
         sleep(0.8);
       }
     } else if (uc.indexOf("status")!=-1) {
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      if (items.isItem(xc,yc)) {
       result = true;
+      } else {
+        System.out.println(red+"No item found!"+cr);
+        sleep(0.8);
+      }
     } else if (uc.indexOf("done")!=-1) {
       result = true;
     } else if (uc.indexOf("fix")!=-1) {
@@ -410,6 +424,10 @@ public class MainGame {
     boolean c2 = true;
     boolean ci = true;
     String clr;
+    int pl1money = players.getMoney(1);
+    int pl2money = players.getMoney(2);
+    int pl1power = players.getPower(1);
+    int pl2power = players.getPower(2);
     System.out.print("\n");
     while (ch<=height) {
       if (ch<10) {
@@ -452,21 +470,21 @@ public class MainGame {
         clr = cr;
         }
         switch (array[cl-1][ch-1]) {
-          case 1: if (ci) { System.out.print(ac+clr+"+"+cr); ci = false; } else { System.out.print(ac+clr+"+"+cr); ci = true; } break;
-          case 2: if (ci) { System.out.print(ac+clr+"#"+cr); ci = false; } else { System.out.print(ac+clr+"#"+cr); ci = true; } break;
-          case 3: if (ci) { System.out.print(ac+clr+"^"+cr); ci = false; } else { System.out.print(ac+clr+"^"+cr); ci = true; } break;
+          case 1: System.out.print(ac+clr+"+"+cr); break;
+          case 2: System.out.print(ac+clr+"#"+cr); break;
+          case 3: System.out.print(ac+clr+"^"+cr); break;
           default: if (ci) { if (c2){System.out.print("o");} else {System.out.print(" ");} ci = false; } else { System.out.print(" "); ci = true; } break;
         }
         cl++;
       }
       if (ch==2) {
-        System.out.print(" P1 $"+players.getMoney(1));
+        System.out.print(" P1 $"+pl1money);
       } else if (ch==3) {
-        System.out.print(" P2 $"+players.getMoney(2));
-      } else if (ch==4) {
-        System.out.print(" P1(P): "+players.getPower(1)+"/"+players.getMaxPower(1));
-      } else if (ch==5) {
-        System.out.print(" P2(P): "+players.getPower(2)+"/"+players.getMaxPower(2));
+        System.out.print(" P2 $"+pl2money);
+      //} else if (ch==4) {
+      //  System.out.print(" P1(P): "+players.getPower(1)+"/"+players.getMaxPower(1));
+      //} else if (ch==5) {
+      //  System.out.print(" P2(P): "+players.getPower(2)+"/"+players.getMaxPower(2));
       } else if (ch==1) {
         System.out.print(" Quick Stats:");
       }
