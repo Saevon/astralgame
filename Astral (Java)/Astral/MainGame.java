@@ -38,7 +38,7 @@ public class MainGame {
   static int length = 9;
   static int[][] array;
   static int curplayer = 1;
-  static int turnphase = 1;
+  static int turnphase = 4;
   static int startmoney = 150;
   
   public static void main(String[] args) {
@@ -100,24 +100,64 @@ public class MainGame {
        case 4: looper=1; break;
        default: System.out.println(nocmd); sleep(1); break;
      }
-    }  catch (Exception ex) { System.out.println(nocmd); ex.printStackTrace(); sleep(1); }
+    }  catch (Exception ex) { System.out.println(nocmd); }
     }
   }
   
   private static void beginGame(String type) {
     //Begins the game
     if (type.equals("host")) {
-      ServerNet server = new ServerNet();
-      server.startHost();
+      SimpleIO.prompt("Port? ");
+      int sport = Integer.parseInt(SimpleIO.readLine());
+      ServerNet server = new ServerNet(sport);
       array = new int[length][height];
       newMap();
-    }
-    
-    if (type.equals("join")) {
-      ClientNet client = new ClientNet();
-      client.joinHost();
+      players = new Players("Player1", "Player2", startmoney, 0);
+      items = new Items();
+      String spr = System.getProperty("file.separator");
+      String dir = System.getProperty("user.dir")+spr+"Astral";
+      try {
+      Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
+      } catch (Exception ex) {
+      }
+      new File(dir+spr+"data"+spr+"items.db").delete();
+      items.create(1,1,"#",1,Stats.getMaxHP("#"));
+      items.create(length,height,"#",2,Stats.getMaxHP("#"));
+      addItem(1,1,"#");
+      addItem(length,height,"#");
+      while (true==true) {
+        String tosend = localTasks("na");
+        server.sendData(tosend);
+        localTasks(server.getReply());
+      }
+      
+    } else if (type.equals("join")) {
+      SimpleIO.prompt("Server's Name? ");
+      String sname = SimpleIO.readLine();
+      SimpleIO.prompt("Port? ");
+      int sport = Integer.parseInt(SimpleIO.readLine());
+      ClientNet client = new ClientNet(sname, sport);
       array = new int[length][height];
       newMap();
+      players = new Players("Player1", "Player2", startmoney, 0);
+      items = new Items();
+      String spr = System.getProperty("file.separator");
+      String dir = System.getProperty("user.dir")+spr+"Astral";
+      try {
+      Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
+      } catch (Exception ex) {
+      }
+      new File(dir+spr+"data"+spr+"items.db").delete();
+      items.create(1,1,"#",1,Stats.getMaxHP("#"));
+      items.create(length,height,"#",2,Stats.getMaxHP("#"));
+      addItem(1,1,"#");
+      addItem(length,height,"#");
+      while (true==true) {
+        localTasks(client.getReply());
+        String tosend = localTasks("na");
+        client.sendData(tosend);
+      }
+      
     } else {
       array = new int[length][height];
       newMap();
@@ -135,12 +175,12 @@ public class MainGame {
       addItem(1,1,"#");
       addItem(length,height,"#");
       while (true==true) {
-        localTasks();
+        localTasks("na");
       }
     }
   }
   
-  private static void localTasks() {
+  private static String localTasks(String netcmd) {
     /* Does all the tasks required each turn
      * Format:
      * 1) Draw Map and CMD prompt
@@ -149,13 +189,21 @@ public class MainGame {
      * 4) Checks to see if won
      * 5) Re-Draws Map and CMD prompt
      */
+    String usercmd = "";
+    try {
     if (turnphase==4) {
     players.addMoney(curplayer,calcIncome());
     turnphase=1;
     }
     redraw(false,0,0);
+    if (netcmd.equals("na")) {
     SimpleIO.prompt("\n"+cmd);
-    String usercmd = SimpleIO.readLine();
+    usercmd = SimpleIO.readLine();
+    } else {
+      SimpleIO.prompt("\nResponse: "+netcmd);
+    SimpleIO.readLine();
+    usercmd = netcmd;
+    }
     boolean allowed = cmdCheck(usercmd);
     if (allowed) {
       cmdRun(usercmd);
@@ -168,6 +216,10 @@ public class MainGame {
       System.out.println(yell+"\n\nPlayer 1 has won!!!"+cr);
       System.exit(0);
     }
+    } catch (Exception ex) {
+      System.out.println(nocmd);
+    }
+    return usercmd;
   }
   
   
@@ -190,7 +242,6 @@ public class MainGame {
           ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
         }
       int cost = Stats.getCost(tempsymbol);
-      if (curplayer==items.getPlayer(xcoord,ycoord)) {
       if ( (tempsymbol.equals("+")) || ((xcoord%2==1)&&(ycoord%2==1)) ) {
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
@@ -203,9 +254,6 @@ public class MainGame {
       }
       } else {
         System.out.println(cr+red+"Cant't be placed there!"+cr);
-      }
-      } else {
-        System.out.println(cr+red+"Not your item!"+cr);
       }
       } else {
         System.out.println(cr+red+"No building during this phase!"+cr);
@@ -381,7 +429,7 @@ public class MainGame {
         turnphase = 2;
         players.addMoney(curplayer,-attpower);
         if (dir.equals("s")) {
-          if (items.getHP(xc,yc+1)<attpower) {
+          if (items.getHP(xc,yc+1)<=attpower) {
             String tmpsym = items.getItem(xc,yc+1);
             items.delete(xc,yc+1);
             items.create(xc,yc+1,tmpsym,curplayer,1);
@@ -391,7 +439,7 @@ public class MainGame {
             System.out.println("Target's HP: "+items.getHP(xc,yc+1)+"/"+Stats.getMaxHP(items.getItem(xc,yc+1)));
           }
         } else if (dir.equals("n")) {
-          if (items.getHP(xc,yc-1)<attpower) {
+          if (items.getHP(xc,yc-1)<=attpower) {
             String tmpsym = items.getItem(xc,yc-1);
             items.delete(xc,yc-1);
             items.create(xc,yc-1,tmpsym,curplayer,1);
@@ -401,7 +449,7 @@ public class MainGame {
             System.out.println("Target's HP: "+items.getHP(xc,yc-1)+"/"+Stats.getMaxHP(items.getItem(xc,yc-1)));
           }
         } else if (dir.equals("e")) {
-          if (items.getHP(xc+1,yc)<attpower) {
+          if (items.getHP(xc+1,yc)<=attpower) {
             String tmpsym = items.getItem(xc+1,yc);
             items.delete(xc+1,yc);
             items.create(xc+1,yc,tmpsym,curplayer,1);
@@ -411,7 +459,7 @@ public class MainGame {
             System.out.println("Target's HP: "+items.getHP(xc+1,yc)+"/"+Stats.getMaxHP(items.getItem(xc+1,yc)));
           }
         } else if (dir.equals("w")) {
-          if (items.getHP(xc-1,yc)<attpower) {
+          if (items.getHP(xc-1,yc)<=attpower) {
             String tmpsym = items.getItem(xc-1,yc);
             items.delete(xc-1,yc);
             items.create(xc-1,yc,tmpsym,curplayer,1);

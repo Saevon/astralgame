@@ -13,20 +13,59 @@ import java.net.*;
 
 
 public class ClientNet {
+  String sname = "localhost";
+  int sport = 1357;
+  PrintWriter out;
+  BufferedReader in;
+  Socket cs;
   
-  public void joinHost() {
-    // Start a server game
-    
+  public ClientNet(String name, int port) {
+    //Creates a connection
+    this.sname = name;
+    this.sport = port;
+    try {
+      cs = new Socket(sname,sport);
+      System.out.println("Connected!");
+      out = new PrintWriter(cs.getOutputStream(),true);
+      in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
+      //cs.close();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
   }
   
+  
   public boolean sendData(String data) {
-    //Send a string of commands, separated by ";"
+    //Send a string of a command
+    try {
+    out.println(data);
     return true;
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+      }
+  }
+  
+  public void exit() {
+    try {
+    out.close();
+    in.close();
+    cs.close();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+      }
   }
   
   public String getReply() {
-    //Waits to recieve a set commands from server, also separated by ";"
-    return null;
+    //Waits to recieve a set commands from server
+    System.out.println("Waiting for P1...");
+    String str = "";
+    try {
+    str = in.readLine();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    return str;
   }
   
 }

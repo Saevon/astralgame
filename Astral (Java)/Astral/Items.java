@@ -101,7 +101,7 @@ public class Items {
     try {
     tmp = in.getFilePointer() + 1;
     str = in.readLine();
-    while ((str.indexOf(x+","+y))==-1) {
+    while ((str.indexOf(x+"'"+y))==-1) {
       tmp = in.getFilePointer() + 1;
       str = in.readLine();
     }
