@@ -223,7 +223,6 @@ public class MainGame {
   }
   
   
-  
   private static boolean cmdCheck(String uc) {
     //Checks if command is allowed
     boolean result = false;
