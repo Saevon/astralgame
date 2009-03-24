@@ -1,0 +1,1 @@
+java Astral.MainGame color
