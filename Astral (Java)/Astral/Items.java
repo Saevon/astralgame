@@ -65,7 +65,7 @@ public class Items {
     //Changes the HP of an item. Amount may be negative
     //to decrease HP (i.e got attacked)
     int hp = getHP(x,y) + amount;
-    String text = Integer.toString(x)+","+Integer.toString(y)+";"+getItem(x,y)+
+    String text = Integer.toString(x)+"'"+Integer.toString(y)+";"+getItem(x,y)+
                   ","+getPlayer(x,y)+","+Integer.toString(hp);
     write(x, y, text);
   }

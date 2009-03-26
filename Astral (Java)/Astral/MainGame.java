@@ -38,7 +38,7 @@ public class MainGame {
   static int length = 9;
   static int[][] array;
   static int curplayer = 1;
-  static int turnphase = 4;
+  static int turnphase = 1;
   static int startmoney = 150;
   
   public static void main(String[] args) {
@@ -48,7 +48,7 @@ public class MainGame {
       System.out.println("COLORS ENABLED!");
       red = AnsiString.RED_ESC;
       blue = AnsiString.BLUE_ESC;
-      prp = AnsiString.PURPLE_ESC;
+      prp = "\033[1;36m";
       attclr = "\033[1;46m";
       cr = AnsiString.RESET_ESC;
       yell = AnsiString.YELLOW_ESC;
@@ -419,62 +419,118 @@ public class MainGame {
         players.addMoney(curplayer,-wantheal*fixcost);
         items.fix(xc,yc,wantheal);
     } else if ((uc.indexOf("attack")!=-1)||(uc.indexOf("atk")!=-1)) {
-      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      doAttack(uc);
+    }
+  }
+  
+  
+  private static void doAttack(String uc) {
+    try {
+    int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
       int yc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
       String dir = uc.substring(uc.lastIndexOf(",")+1);
       SimpleIO.prompt("Power(MAX="+players.getMoney(curplayer)+")? ");
       int attpower = Integer.parseInt(SimpleIO.readLine());
+      int attx = 0;
+      int atty = 0;
+      int xchange = 0;
+      int ychange = 0;
+      
       if (attpower<=players.getMoney(curplayer)) {
-        turnphase = 2;
-        players.addMoney(curplayer,-attpower);
         if (dir.equals("s")) {
-          if (items.getHP(xc,yc+1)<=attpower) {
-            String tmpsym = items.getItem(xc,yc+1);
-            items.delete(xc,yc+1);
-            items.create(xc,yc+1,tmpsym,curplayer,1);
-            System.out.println(red+"Captured Item!"+cr);
-          } else {
-            items.fix(xc,yc+1,-attpower);
-            System.out.println("Target's HP: "+items.getHP(xc,yc+1)+"/"+Stats.getMaxHP(items.getItem(xc,yc+1)));
-          }
+          ychange = 1;
         } else if (dir.equals("n")) {
-          if (items.getHP(xc,yc-1)<=attpower) {
-            String tmpsym = items.getItem(xc,yc-1);
-            items.delete(xc,yc-1);
-            items.create(xc,yc-1,tmpsym,curplayer,1);
-            System.out.println(red+"Captured Item!"+cr);
-          } else {
-            items.fix(xc,yc-1,-attpower);
-            System.out.println("Target's HP: "+items.getHP(xc,yc-1)+"/"+Stats.getMaxHP(items.getItem(xc,yc-1)));
-          }
+          ychange = -1;
         } else if (dir.equals("e")) {
-          if (items.getHP(xc+1,yc)<=attpower) {
-            String tmpsym = items.getItem(xc+1,yc);
-            items.delete(xc+1,yc);
-            items.create(xc+1,yc,tmpsym,curplayer,1);
-            System.out.println(red+"Captured Item!"+cr);
-          } else {
-            items.fix(xc+1,yc,-attpower);
-            System.out.println("Target's HP: "+items.getHP(xc+1,yc)+"/"+Stats.getMaxHP(items.getItem(xc+1,yc)));
-          }
+          xchange = 1;
         } else if (dir.equals("w")) {
-          if (items.getHP(xc-1,yc)<=attpower) {
-            String tmpsym = items.getItem(xc-1,yc);
-            items.delete(xc-1,yc);
-            items.create(xc-1,yc,tmpsym,curplayer,1);
-            System.out.println(red+"Captured Item!"+cr);
-          } else {
-            items.fix(xc-1,yc,-attpower);
-            System.out.println("Target's HP: "+items.getHP(xc-1,yc)+"/"+Stats.getMaxHP(items.getItem(xc-1,yc)));
-          }
+          xchange = -1;
         }
+        attx = xc+xchange;
+        atty = yc+ychange;
+        if (items.getItem(attx,atty).equals("+")) {
+          while (attpower>0) {
+            if (attpower>0) {
+          redraw(true,attx,atty);
+        }
+          players.addMoney(curplayer,-attpower);
+            while (items.getPlayer(attx,atty)==curplayer) {
+              attx += xchange;
+              atty += ychange;
+               if (!items.isItem(attx,atty)) {
+                 String newdirs = "";
+                 if (ychange==1) {
+                   if (items.isItem(attx-1,atty)) { newdirs += "w"; }
+                   if (items.isItem(attx+1,atty)) { newdirs += "e"; }
+                   if (items.isItem(attx,atty+1)) { newdirs += "s"; }
+                 } else if (ychange==-1) {
+                   if (items.isItem(attx-1,atty)) { newdirs += "w"; }
+                   if (items.isItem(attx+1,atty)) { newdirs += "e"; }
+                   if (items.isItem(attx,atty-1)) { newdirs += "n"; }
+                 } else if (xchange==1) {
+                   if (items.isItem(attx+1,atty)) { newdirs += "e"; }
+                   if (items.isItem(attx,atty+1)) { newdirs += "s"; }
+                   if (items.isItem(attx,atty-1)) { newdirs += "n"; }
+                 } else if (xchange==-1) {
+                   if (items.isItem(attx,atty+1)) { newdirs += "s"; }
+                   if (items.isItem(attx-1,atty)) { newdirs += "w"; }
+                   if (items.isItem(attx,atty-1)) { newdirs += "n"; }
+                 }
+                 if (newdirs.equals("")) {
+                   return;
+                 }
+                 int dirnum = (int) (Math.random() * (newdirs.length()-1) + 1);
+                 String resultdir = newdirs.substring(dirnum-1,dirnum);
+                 xchange = 0;
+                 ychange = 0;
+                  if (resultdir.equals("s")) {
+                    ychange = 1;
+                  } else if (resultdir.equals("n")) {
+                    ychange = -1;
+                  } else if (resultdir.equals("e")) {
+                    xchange = 1;
+                  } else if (resultdir.equals("w")) {
+                    xchange = -1;
+                  }
+                  attx += xchange;
+                  atty += ychange;
+               }
+            }
+             turnphase = 2;
+        if (items.getHP(attx,atty)<=attpower) {
+          attpower -= items.getHP(attx,atty);
+            String tmpsym = items.getItem(attx,atty);
+            items.delete(attx,atty);
+            items.create(attx,atty,tmpsym,curplayer,1);
+            System.out.println(red+"Captured Item!"+cr);
+            if (items.getItem(attx,atty).equals("#")) {
+              if (items.getPlayer(attx,atty)==1) {
+                System.out.println("\nPlayer 1 Wins!");
+                sleep(1);
+                System.exit(0);
+              } else {
+                System.out.println("\nPlayer 2 Wins!");
+                sleep(1);
+                System.exit(0);
+              }
+            }
+          } else {
+            int temppower = attpower;
+            attpower -= items.getHP(attx,atty);
+            items.fix(attx,atty,-temppower);
+            System.out.println("Target's HP: "+items.getHP(attx,atty)+"/"+Stats.getMaxHP(items.getItem(attx,atty)));
+          }
         SimpleIO.readLine();
+        }
+        } else {
+            System.out.println(red+"No Path!"+cr);
+          }
       } else {
         System.out.println(red+"Not enough money!"+cr);
-        sleep(0.8);
     }
-    }
+    } catch (Exception ex) { ex.printStackTrace(); }
   }
+  
   
   
   private static void newMap() {
@@ -610,7 +666,7 @@ public class MainGame {
     int income = 0;
     while (cx<=length) {
       while (cy<=height) {
-        if (items.isItem(cx,cy)){
+        if (items.isItem(cx,cy)&&items.getPlayer(cx,cy)==curplayer){
           income += Stats.getIncome(items.getItem(cx,cy));
         }
         cy++;
