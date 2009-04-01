@@ -27,6 +27,7 @@ public class MainGame {
   static String pink = "";
   static Players players;
   static Items items;
+  static String loadfile = "";
   /* The array stores numbers corrresponding to items
    * Format:
    * blank = 0
@@ -34,12 +35,12 @@ public class MainGame {
    * # = 2
    * ^ = 3
    */
-  static int height = 9;
-  static int length = 9;
+  static int height = 5;
+  static int length = 7;
   static int[][] array;
   static int curplayer = 1;
   static int turnphase = 1;
-  static int startmoney = 150;
+  static int startmoney = 50;
   
   public static void main(String[] args) {
     // Sets if colors are enabled (from argument given)
@@ -61,24 +62,24 @@ public class MainGame {
     System.out.println("\n-A-S-T-R-A-L-");
     while (looper==0) {
     SimpleIO.prompt("\nMAIN MENU\n"+
-                    "1) Start a new game\n"+
-                    "2) View Help\n"+
-                    "3) Set Map Size\n"+
-                    "4) Set Money\n"+
-                    "5) Quit\n"+
+                    "1) Start a new game\t2) Load a game\n"+
+                    "3) Set Map Size\t4) Set Money\n"+
+                    "5) View Help\n"+
+                    "6) Quit\n"+
                     cmd);
     try {
      int mainchoice = Integer.parseInt(SimpleIO.readLine());
      String ms;
      switch (mainchoice) {
+       case 2: SimpleIO.prompt("Save File? "); loadfile = SimpleIO.readLine(); setUpGame(); looper=0; break;
        case 1: setUpGame(); looper=0; break;
-       case 2: System.out.println("(Sorry this is not yet implemented)"); sleep(1); break;
+       case 5: System.out.println("(Sorry this is not yet implemented)"); break;
        case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); length = Integer.parseInt(ms.substring(0,ms.indexOf(","))); height = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
        case 4: SimpleIO.prompt("Starting Money? "); startmoney = Integer.parseInt(SimpleIO.readLine()); break;
-       case 5: System.out.println("Thanks for playing!"); System.exit(0);
-       default: System.out.println(nocmd); sleep(1); break;
+       case 6: System.out.println("Thanks for playing!"); System.exit(0);
+       default: System.out.println(nocmd); break;
       }
-     } catch (Exception ex) { System.out.println(nocmd); sleep(1); }
+     } catch (Exception ex) { System.out.println(nocmd); }
    }
   }
   
@@ -107,6 +108,8 @@ public class MainGame {
   private static void beginGame(String type) {
     //Begins the game
     if (type.equals("host")) {
+      SimpleIO.prompt("Server Password: ");
+      String pass = SimpleIO.readLine();
       SimpleIO.prompt("Port? ");
       int sport = Integer.parseInt(SimpleIO.readLine());
       ServerNet server = new ServerNet(sport);
@@ -125,15 +128,31 @@ public class MainGame {
       items.create(length,height,"#",2,Stats.getMaxHP("#"));
       addItem(1,1,"#");
       addItem(length,height,"#");
+      String tosend = "";
+      java.util.ArrayList<String> cmdlist = new java.util.ArrayList<String>(0);
       while (true==true) {
-        String tosend = localTasks("na");
-        server.sendData(tosend);
+        while (true) {
+          cmdlist.clear();
+          cmdlist.trimToSize();
+        tosend = localTasks("na");
+        if (tosend.equals("nosend")==false) {
+          if ((tosend.indexOf("done")!=-1)&&(tosend.indexOf("turn")!=-1)) {
+            break;
+          } else {
+            cmdlist.add(tosend+";");
+          }
+        }
+      }
+        server.sendData((String[])cmdlist.toArray());
+        redraw(false,0,0);
         localTasks(server.getReply());
       }
       
     } else if (type.equals("join")) {
       SimpleIO.prompt("Server's Name? ");
       String sname = SimpleIO.readLine();
+      SimpleIO.prompt("Server's Password? ");
+      String pass = SimpleIO.readLine();
       SimpleIO.prompt("Port? ");
       int sport = Integer.parseInt(SimpleIO.readLine());
       ClientNet client = new ClientNet(sname, sport);
@@ -152,13 +171,22 @@ public class MainGame {
       items.create(length,height,"#",2,Stats.getMaxHP("#"));
       addItem(1,1,"#");
       addItem(length,height,"#");
+      String tosend = "";
+      java.util.ArrayList<String> cmdlist = new java.util.ArrayList<String>(0);
       while (true==true) {
+        redraw(false,0,0);
         localTasks(client.getReply());
-        String tosend = localTasks("na");
+        while (true) {
+        tosend = localTasks("na");
+        if (tosend.equals("nosend")==false) {
+          break;
+        }
+      }
         client.sendData(tosend);
       }
       
     } else {
+      if (loadfile.equals("")) {
       array = new int[length][height];
       newMap();
       players = new Players("Player1", "Player2", startmoney, 0);
@@ -174,6 +202,9 @@ public class MainGame {
       items.create(length,height,"#",2,Stats.getMaxHP("#"));
       addItem(1,1,"#");
       addItem(length,height,"#");
+      } else {
+        loadGame(loadfile);
+      }
       while (true==true) {
         localTasks("na");
       }
@@ -190,6 +221,7 @@ public class MainGame {
      * 5) Re-Draws Map and CMD prompt
      */
     String usercmd = "";
+    boolean allowed = true;
     try {
     if (turnphase==4) {
     players.addMoney(curplayer,calcIncome());
@@ -204,7 +236,7 @@ public class MainGame {
     SimpleIO.readLine();
     usercmd = netcmd;
     }
-    boolean allowed = cmdCheck(usercmd);
+    allowed = cmdCheck(usercmd);
     if (allowed) {
       cmdRun(usercmd);
     }
@@ -219,6 +251,12 @@ public class MainGame {
     } catch (Exception ex) {
       System.out.println(nocmd);
     }
+    if ((usercmd.indexOf("status")!=-1)||(usercmd.indexOf("help")!=-1)) {
+      usercmd = "nosend";
+    }
+    if (!allowed) {
+      usercmd = "nosend";
+    }
     return usercmd;
   }
   
@@ -229,6 +267,9 @@ public class MainGame {
     String tempsymbol = "";
     if (uc.indexOf("buy")!=-1) {
       if (turnphase == 1) {
+        if (uc.indexOf("more")!=-1) {
+          result = true;
+        } else {
         int xcoord = 0;
     int ycoord = 0;
         try {
@@ -254,6 +295,7 @@ public class MainGame {
       } else {
         System.out.println(cr+red+"Cant't be placed there!"+cr);
       }
+        }
       } else {
         System.out.println(cr+red+"No building during this phase!"+cr);
       }
@@ -261,6 +303,12 @@ public class MainGame {
       result = true;
     } else if (uc.indexOf("exit")!=-1) {
       result = true;
+    } else if (uc.indexOf("save")!=-1) {
+      if (uc.indexOf("'")!=-1) {
+      result = true;
+      } else {
+        System.out.println(cr+red+"No file specified!"+cr);
+      }
     } else if (uc.indexOf("help")!=-1) {
       result = true;
     } else if (uc.indexOf("sell")!=-1) {
@@ -343,6 +391,19 @@ public class MainGame {
   private static void cmdRun(String uc) {
     //Executes specified command
     if (uc.indexOf("buy")!=-1) {
+      boolean doloop = true;
+      boolean tmp = true;
+      if (uc.indexOf("more")==-1) {
+        tmp = false;
+      }
+      while (doloop) {
+        if (tmp) {
+          SimpleIO.prompt(cmd);
+          uc = SimpleIO.readLine();
+        }
+        if (uc.indexOf("stop")!=-1) {
+          break;
+        }
       String sym = "";
       int xcoord = 0;
       int ycoord = 0;
@@ -359,8 +420,11 @@ public class MainGame {
       players.addMoney(curplayer, -cost);
       addItem(xcoord,ycoord,sym);
       items.create(xcoord,ycoord,sym,curplayer,Stats.getMaxHP(sym));
+      if (tmp==false) {
+        doloop = false;
+      }
+      }
       System.out.println("Bought!");
-      sleep(0.8);
     } else if (uc.indexOf("quit")!=-1) {
       System.out.println("Brutally Disconnecting...");
       System.exit(0);
@@ -370,6 +434,9 @@ public class MainGame {
     } else if (uc.indexOf("help")!=-1) {
       System.out.println("(Sorry, not yet implemented)");
       sleep(0.8);
+    } else if (uc.indexOf("save")!=-1) {
+      saveGame(uc.substring(uc.indexOf("'")+1));
+      System.out.println("Game Saved!");
     } else if (uc.indexOf("sell")!=-1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
@@ -450,13 +517,13 @@ public class MainGame {
         atty = yc+ychange;
         if (items.getItem(attx,atty).equals("+")) {
           while (attpower>0) {
-            if (attpower>0) {
-          redraw(true,attx,atty);
-        }
           players.addMoney(curplayer,-attpower);
             while (items.getPlayer(attx,atty)==curplayer) {
               attx += xchange;
               atty += ychange;
+              if (attpower>0) {
+          redraw(true,attx,atty);
+        }
                if (!items.isItem(attx,atty)) {
                  String newdirs = "";
                  if (ychange==1) {
@@ -496,6 +563,9 @@ public class MainGame {
                   atty += ychange;
                }
             }
+            if (attpower>0) {
+          redraw(true,attx,atty);
+        }
              turnphase = 2;
         if (items.getHP(attx,atty)<=attpower) {
           attpower -= items.getHP(attx,atty);
@@ -675,6 +745,94 @@ public class MainGame {
       cx++;
     }
     return income;
+  }
+  
+  private static void loadGame(String file) {
+    int p1money = 0;
+    int p2money = 0;
+    try {
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
+    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
+    String tmp = in.readLine();
+    height = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    tmp = in.readLine();
+    length = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    tmp = in.readLine();
+    p1money = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    tmp = in.readLine();
+    p2money = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    tmp = in.readLine();
+    curplayer = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    tmp = in.readLine();
+    turnphase = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
+    array = new int[length][height];
+    newMap();
+    players = new Players("Player1", "Player2", startmoney, 0);
+    players.setMoney(1,p1money);
+    players.setMoney(2,p2money);
+    items = new Items();
+    try {
+    Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
+    } catch (Exception ex) {
+    }
+    new File(dir+spr+"data"+spr+"items.db").delete();
+    int xc = 0;
+    int yc = 0;
+    String sym = "";
+    int curhp = 0;
+    int owner = 0;
+    try {
+      while (true) {
+    tmp = in.readLine();
+    xc = Integer.parseInt(tmp.substring(0,tmp.indexOf("'")));
+    yc = Integer.parseInt(tmp.substring(tmp.indexOf("'")+1,tmp.indexOf(":")));
+    sym = tmp.substring(tmp.indexOf(":")+1,tmp.indexOf(","));
+    owner = Integer.parseInt(tmp.substring(tmp.indexOf(",")+1,tmp.lastIndexOf(",")));
+    curhp = Integer.parseInt(tmp.substring(tmp.lastIndexOf(",")+1));
+    items.create(xc,yc,sym,owner,curhp);
+    addItem(xc,yc,sym);
+      }
+    } catch (NullPointerException nex) {
+    }
+    in.close();
+    } catch (Exception ex) {
+      System.out.println("ERROR READING FILE");
+      System.exit(-1);
+    }
+  }
+  
+  private static void saveGame(String file) {
+    try {
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
+    try {
+    Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+file+".sav");
+    } catch (Exception ex) {
+    }
+    new File(dir+spr+"data"+spr+file+".sav").delete();
+    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
+    String vars = "height="+height+"\nlength="+length+"\nplayer1="+players.getMoney(1)+"\nplayer2="+
+                  players.getMoney(1)+"\ncurplayer="+curplayer+"\nturnphase="+turnphase;
+    in.writeBytes(vars);
+    int cx = 1;
+    int cy = 1;
+    String locs = "";
+    while (cy<=height) {
+      while (cx<=length) {
+        if (items.isItem(cx,cy)) {
+          locs += "\n"+cx+"'"+cy+":"+items.getItem(cx,cy)+","+items.getPlayer(cx,cy)+","+items.getHP(cx,cy);
+        }
+        cx++;
+      }
+      cy++;
+    }
+    in.writeBytes(locs);
+    in.close();
+    } catch (Exception ex) {
+      System.out.println("ERROR WRITING FILE");
+      System.exit(-1);
+    }
   }
   
 }

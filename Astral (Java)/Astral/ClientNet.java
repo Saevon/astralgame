@@ -25,12 +25,15 @@ public class ClientNet {
     this.sport = port;
     try {
       cs = new Socket(sname,sport);
-      System.out.println("Connected!");
       out = new PrintWriter(cs.getOutputStream(),true);
       in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
       //cs.close();
       } catch (Exception ex) {
+        if((""+ex).indexOf("Connection refused: connect")!=-1) {
+          System.exit(-1);
+        } else {
         ex.printStackTrace();
+        }
       }
   }
   

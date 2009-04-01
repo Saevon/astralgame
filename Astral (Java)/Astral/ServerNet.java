@@ -24,6 +24,7 @@ public class ServerNet {
     try {
       ss = new ServerSocket(cport);
       System.out.println("Opened port: "+cport);
+      System.out.println("\nWaiting for a client to connect...");
       cs = ss.accept();
       System.out.println("Found client!");
       in = new BufferedReader(new InputStreamReader(cs.getInputStream()));
@@ -33,8 +34,9 @@ public class ServerNet {
       }
   }
   
-  public boolean sendData(String data) {
+  public boolean sendData(String[] data) {
     //Send a string of commands
+    
     try {
     out.println(data);
     return true;

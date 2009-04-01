@@ -24,7 +24,7 @@ public class Stats {
    * fixcost=5   //cost to fix one hp of item
    * value=-1    //sell price of item (below zero, can't be sold)
    * max=1       //max amount you may own (Zero, infinite)
-   * extra="LOL" //Extra Info
+   * extra="INFO" //Extra Info
    * %           //end of item separator
    * %
    * ...         //next item
