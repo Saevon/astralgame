@@ -432,8 +432,7 @@ public class MainGame {
       System.out.println("Brutally Disconnecting...");
       System.exit(0);
     } else if (uc.indexOf("help")!=-1) {
-      System.out.println("(Sorry, not yet implemented)");
-      sleep(0.8);
+      doHelp();
     } else if (uc.indexOf("save")!=-1) {
       saveGame(uc.substring(uc.indexOf("'")+1));
       System.out.println("Game Saved!");
@@ -747,6 +746,45 @@ public class MainGame {
       cx++;
     }
     return income;
+  }
+  
+  private static void doHelp() {
+    //Specifs for HELP command
+    //Reads data/help.db to get properties
+    String spr = System.getProperty("file.separator");
+    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String topics = "Help Topics";
+    String str = "";
+    int tcount = 2;
+    try {
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.FileReader(new java.io.File(dir+spr+"data"+spr+"help.db")));
+        while ((str.indexOf("##"))==-1) {
+          str = in.readLine();
+          if ((str.indexOf("$"))!=-1) {
+            str = "";
+          }
+        }
+        str = in.readLine();
+        topics += "\n1) "+str.substring(str.indexOf("=")+1);
+        while (true) {
+          while (((str = in.readLine()).indexOf("%"))==-1) {
+        }
+          str = in.readLine();
+          if (str.equals("##")) {
+            break;
+          }
+        topics += "\n"+tcount+") "+str.substring(str.indexOf("=")+1);
+        tcount++;
+        }
+        System.out.println(topics);
+        SimpleIO.prompt(cmd);
+        int numchoice = Integer.parseInt(SimpleIO.readLine());
+        in.close();
+        
+    } catch (Exception e) {
+      System.out.println("ERROR READING FILE(Called by:doHelp())");
+      System.exit(-1);
+    }
   }
   
   private static void loadGame(String file) {

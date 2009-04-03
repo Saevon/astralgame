@@ -1,0 +1,29 @@
+$ Dollars signs are comments!
+$ Creates a help menu based on topics
+$ %=<topic name>
+$ all the diffrent items on separate lines
+$ <ITEM NAME> "<Text!Exclamation is a carriage return>"
+$ end topic with %
+$ ## and ## are start and end of file
+##
+%=Buildings
+Astral Line <Type "info +" for more information.>
+Village <Type "info ^" for more information.>
+Castle <Type "info #" for more information.>
+%
+%=Commands
+None <Not yet implemented.>
+%
+%=Colors
+None <Not yet implemented.>
+%
+%=Skills
+None <Not yet implemented.>
+%
+%=Upgrades
+None <Not yet implemented.>
+%
+%=Player Turn Actions
+None <Not yet implemented.>
+%
+##
