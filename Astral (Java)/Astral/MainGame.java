@@ -62,8 +62,8 @@ public class MainGame {
     System.out.println("\n-A-S-T-R-A-L-");
     while (looper==0) {
     SimpleIO.prompt("\nMAIN MENU\n"+
-                    "1) Start a new game\t2) Load a game\n"+
-                    "3) Set Map Size\t4) Set Money\n"+
+                    "1) Start a new game    2) Load a game\n"+
+                    "3) Set Map Size        4) Set Money\n"+
                     "5) View Help\n"+
                     "6) Quit\n"+
                     cmd);
@@ -348,8 +348,8 @@ public class MainGame {
       result = true;
     } else if (uc.indexOf("fix")!=-1) {
       if (turnphase!=2) {
-      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
-      int yc = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
+      int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
+      int yc = Integer.parseInt(uc.substring(uc.indexOf(",")+1));
       int maxhp = Stats.getMaxHP(items.getItem(xc,yc));
       int curhp = items.getHP(xc,yc);
       if (curplayer==items.getPlayer(xc,yc)) {
@@ -516,15 +516,15 @@ public class MainGame {
         attx = xc+xchange;
         atty = yc+ychange;
         if (items.getItem(attx,atty).equals("+")) {
-          while (attpower>0) {
           players.addMoney(curplayer,-attpower);
+          while (attpower>0) {
             while (items.getPlayer(attx,atty)==curplayer) {
-              attx += xchange;
-              atty += ychange;
-              if (attpower>0) {
-          redraw(true,attx,atty);
-        }
-               if (!items.isItem(attx,atty)) {
+              if (!items.getItem(attx,atty).equals("+")) {
+                break;
+              }
+               attx += xchange;
+               atty += ychange;
+               if (!items.getItem(attx,atty).equals("+")) {
                  String newdirs = "";
                  if (ychange==1) {
                    if (items.isItem(attx-1,atty)) { newdirs += "w"; }
@@ -546,7 +546,7 @@ public class MainGame {
                  if (newdirs.equals("")) {
                    return;
                  }
-                 int dirnum = (int) (Math.random() * (newdirs.length()-1) + 1);
+                 int dirnum = (int) ((Math.random() * newdirs.length() + 1));
                  String resultdir = newdirs.substring(dirnum-1,dirnum);
                  xchange = 0;
                  ychange = 0;
@@ -559,8 +559,10 @@ public class MainGame {
                   } else if (resultdir.equals("w")) {
                     xchange = -1;
                   }
+                  if (!items.isItem(attx,atty)) {
                   attx += xchange;
                   atty += ychange;
+                  }
                }
             }
             if (attpower>0) {
@@ -813,7 +815,7 @@ public class MainGame {
     new File(dir+spr+"data"+spr+file+".sav").delete();
     java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
     String vars = "height="+height+"\nlength="+length+"\nplayer1="+players.getMoney(1)+"\nplayer2="+
-                  players.getMoney(1)+"\ncurplayer="+curplayer+"\nturnphase="+turnphase;
+                  players.getMoney(2)+"\ncurplayer="+curplayer+"\nturnphase="+turnphase;
     in.writeBytes(vars);
     int cx = 1;
     int cy = 1;
@@ -825,6 +827,7 @@ public class MainGame {
         }
         cx++;
       }
+      cx = 1;
       cy++;
     }
     in.writeBytes(locs);
