@@ -1,85 +1,81 @@
+package AstralG;
+
 /*
  * Dmitri Amariei (dim3000)
- * MainGame.java (Part of Astral package)
- * The main class of the game Astral, ported to Java w/ Network Gaming added.
- * March 7, 2009
- * (c) Dmitri Amariei and Serghei Fillipov. All Rights Reserved.
+ * MainGame.java (Part of AstralG package)
+ * The main class of the game AstralG, the graphical version of the
+ * original Astral.
+ * April 9, 2009
+ * (c) Dmitri Amariei. All Rights Reserved.
  */
 
-package Astral;
 
-import jpb.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 import java.io.File;
+import javax.sound.midi.*;
 
-
-public class MainGame {
+public class MainGame extends JFrame {
   
-  //Shortcut Variables
-  final static String nocmd = "Unrecognized Command!";
-  final static String cmd = "> ";
-  static String red = "";
-  static String blue = "";
-  static String attclr = "";
-  static String gr = "";
-  static String prp = "";
-  static String cr = "";
-  static String yell = "";
-  static String pink = "";
-  static Players players;
-  static Items items;
-  static String loadfile = "";
-  /* The array stores numbers corrresponding to items
-   * Format:
-   * blank = 0
-   * + = 1
-   * # = 2
-   * ^ = 3
-   */
-  static int height = 5;
-  static int length = 7;
-  static int[][] array;
-  static int curplayer = 1;
-  static int turnphase = 1;
-  static int startmoney = 50;
-  
-  public static void main(String[] args) {
-    // Sets if colors are enabled (from argument given)
-    try {
-      if (args[0].equals("color")) {
-      System.out.println("COLORS ENABLED!");
-      red = AnsiString.RED_ESC;
-      blue = AnsiString.BLUE_ESC;
-      prp = "\033[1;36m";
-      attclr = "\033[1;46m";
-      cr = AnsiString.RESET_ESC;
-      yell = AnsiString.YELLOW_ESC;
-      gr = AnsiString.GREEN_ESC;
-      pink = "\033[0;35m";
+  private static void createAndShowGUI() {
+        //Create and set up the window.
+        MainGame astralg = new MainGame();
+        astralg.setVisible(true);
+        astralg.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        System.exit(0);
       }
-    } catch (Exception ex) {}
+    });
+    }
+  public static void main(String[] args) {
+    createAndShowGUI();
+    // Sets the colors
+      red = Color.red;
+      blue = Color.blue;
+      prp = new Color(0,0,128);
+      attclr = Color.black;
+      cr = new Color(193, 151, 0);
+      yell = Color.yellow;
+      gr = Color.green;
+      pink = Color.pink;
+      
+    //Starts playing music
+      try {
+      String spr = System.getProperty("file.separator");
+        String dir = System.getProperty("user.dir")+spr+"AstralG";
+        Sequence sequence = MidiSystem.getSequence(new File(dir+spr+"sound"+spr+"background.mid"));
+    
+        // Create a sequencer for the sequence
+        sequencer = MidiSystem.getSequencer();
+        sequencer.open();
+        sequencer.setSequence(sequence);
+        sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+      playBGMusic(true);
+      } catch (Exception ex) { }
+      
     // Displays main game menu and options
     int looper = 0;
-    System.out.println("\n-A-S-T-R-A-L-");
+    printOutLn(cr, "\n\t-A-S-T-R-A-L-");
     while (looper==0) {
-    SimpleIO.prompt("\nMAIN MENU\n"+
+    printOutLn(cr, "\nMAIN MENU\n"+
                     "1) Start a new game    2) Load a game\n"+
-                    "3) Set Map Size        4) Set Money\n"+
+                    "3) Set Map Size            4) Set Money\n"+
                     "5) View Help\n"+
-                    "6) Quit\n"+
-                    cmd);
+                    "6) Quit\n");
     try {
-     int mainchoice = Integer.parseInt(SimpleIO.readLine());
+     int mainchoice = Integer.parseInt(readLine());
      String ms;
      switch (mainchoice) {
-       case 2: SimpleIO.prompt("Save File? "); loadfile = SimpleIO.readLine(); setUpGame(); looper=0; break;
+       case 2: printOutLn(cr, "Save File? "); loadfile = readLine(); setUpGame(); looper=0; break;
        case 1: setUpGame(); looper=0; break;
-       case 5: System.out.println("(Sorry this is not yet implemented)"); break;
-       case 3: SimpleIO.prompt("Map Size(x,y)? "); ms = SimpleIO.readLine(); length = Integer.parseInt(ms.substring(0,ms.indexOf(","))); height = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
-       case 4: SimpleIO.prompt("Starting Money? "); startmoney = Integer.parseInt(SimpleIO.readLine()); break;
-       case 6: System.out.println("Thanks for playing!"); System.exit(0);
-       default: System.out.println(nocmd); break;
+       case 5: printOutLn(cr, "(Sorry this is not yet implemented)"); break;
+       case 3: printOutLn(cr, "Map Size(x,y)? "); ms = readLine(); length = Integer.parseInt(ms.substring(0,ms.indexOf(","))); height = Integer.parseInt(ms.substring(ms.indexOf(",")+1)); break;
+       case 4: printOutLn(cr, "Starting Money? "); startmoney = Integer.parseInt(readLine()); break;
+       case 6: printOutLn(cr, "Thanks for playing!"); System.exit(0);
+       default: printOutLn(cr, nocmd); break;
       }
-     } catch (Exception ex) { System.out.println(nocmd); }
+     } catch (Exception ex) { /*printOutLn(cr, nocmd);*/ }
    }
   }
   
@@ -87,31 +83,30 @@ public class MainGame {
     //Sets up a new game
     int looper = 0;
     while (looper==0) {
-    SimpleIO.prompt("\n1) Start a local game\n"+
+    printOutLn(cr, "\n1) Start a local game\n"+
                     "2) Host a game\n"+
                     "3) Join a game\n"+
-                    "4) Go Back\n"+
-                    cmd);
+                    "4) Go Back\n");
     try {
-     int typechoice = Integer.parseInt(SimpleIO.readLine());
+     int typechoice = Integer.parseInt(readLine());
      switch (typechoice) {
-       case 1: System.out.println("Starting A New Game..."); sleep(1); beginGame("local"); looper=1; break;
-       case 2: System.out.println("Starting A New Game..."); sleep(1); beginGame("host"); looper=1; break;
-       case 3: System.out.println("Joining Game..."); sleep(1); beginGame("join"); looper=1; break;
+       case 1: printOutLn(cr, "Starting A New Game..."); sleep(1); beginGame("local"); looper=1; break;
+       case 2: printOutLn(cr, "Starting A New Game..."); sleep(1); beginGame("host"); looper=1; break;
+       case 3: printOutLn(cr, "Joining Game..."); sleep(1); beginGame("join"); looper=1; break;
        case 4: looper=1; break;
-       default: System.out.println(nocmd); sleep(1); break;
+       default: printOutLn(cr, nocmd); sleep(1); break;
      }
-    }  catch (Exception ex) { System.out.println(nocmd); }
+    }  catch (Exception ex) { printOutLn(cr, nocmd); }
     }
   }
   
   private static void beginGame(String type) {
     //Begins the game
     if (type.equals("host")) {
-      SimpleIO.prompt("Server Password: ");
-      String pass = SimpleIO.readLine();
-      SimpleIO.prompt("Port? ");
-      int sport = Integer.parseInt(SimpleIO.readLine());
+      printOutLn(cr, "Server Password: ");
+      String pass = readLine();
+      printOutLn(cr, "Port? ");
+      int sport = Integer.parseInt(readLine());
       ServerNet server = new ServerNet(sport);
       array = new int[length][height];
       newMap();
@@ -149,12 +144,12 @@ public class MainGame {
       }
       
     } else if (type.equals("join")) {
-      SimpleIO.prompt("Server's Name? ");
-      String sname = SimpleIO.readLine();
-      SimpleIO.prompt("Server's Password? ");
-      String pass = SimpleIO.readLine();
-      SimpleIO.prompt("Port? ");
-      int sport = Integer.parseInt(SimpleIO.readLine());
+      printOutLn(cr, "Server's Name? ");
+      String sname = readLine();
+      printOutLn(cr, "Server's Password? ");
+      String pass = readLine();
+      printOutLn(cr, "Port? ");
+      int sport = Integer.parseInt(readLine());
       ClientNet client = new ClientNet(sname, sport);
       array = new int[length][height];
       newMap();
@@ -229,11 +224,11 @@ public class MainGame {
     }
     redraw(false,0,0);
     if (netcmd.equals("na")) {
-    SimpleIO.prompt("\n"+cmd);
-    usercmd = SimpleIO.readLine();
+    printOutLn(cr, cmd);
+    usercmd = readLine();
     } else {
-      SimpleIO.prompt("\nResponse: "+netcmd);
-    SimpleIO.readLine();
+      printOutLn(cr, "\nResponse: "+netcmd);
+    readLine();
     usercmd = netcmd;
     }
     allowed = cmdCheck(usercmd);
@@ -241,15 +236,15 @@ public class MainGame {
       cmdRun(usercmd);
     }
     if (!items.isItem(1,1)) {
-      System.out.println(pink+"\n\nPlayer 2 has won!!!"+cr);
+      printOutLn(cr, pink+"\n\nPlayer 2 has won!!!"+cr);
       System.exit(0);
     }
     if (!items.isItem(length,height)) {
-      System.out.println(yell+"\n\nPlayer 1 has won!!!"+cr);
+      printOutLn(cr, yell+"\n\nPlayer 1 has won!!!"+cr);
       System.exit(0);
     }
     } catch (Exception ex) {
-      System.out.println(nocmd);
+      printOutLn(cr, nocmd);
     }
     if ((usercmd.indexOf("status")!=-1)||(usercmd.indexOf("help")!=-1)) {
       usercmd = "nosend";
@@ -286,18 +281,18 @@ public class MainGame {
       if ((cost!=-1)&&(cost<=players.getMoney(curplayer))) {
         result = true;
       } else {
-        System.out.println(cr+red+"Not enough money!"+cr);
+        printOutLn(red, "Not enough money!");
       }
       if (items.isItem(xcoord,ycoord)) {
-        System.out.println(cr+red+"Item already there!"+cr);
+        printOutLn(red, "Item already there!");
         result = false;
       }
       } else {
-        System.out.println(cr+red+"Cant't be placed there!"+cr);
+        printOutLn(red, "Cant't be placed there!");
       }
         }
       } else {
-        System.out.println(cr+red+"No building during this phase!"+cr);
+        printOutLn(red, "No building during this phase!");
       }
     } else if (uc.indexOf("quit")!=-1) {
       result = true;
@@ -307,7 +302,7 @@ public class MainGame {
       if (uc.indexOf("'")!=-1) {
       result = true;
       } else {
-        System.out.println(cr+red+"No file specified!"+cr);
+        printOutLn(red, "No file specified!");
       }
     } else if (uc.indexOf("help")!=-1) {
       result = true;
@@ -321,18 +316,18 @@ public class MainGame {
         if (value!=-1) {
         result = true;
         } else {
-        System.out.println(cr+red+"Can't be sold!"+cr);
+        printOutLn(red, "Can't be sold!");
         sleep(0.8);
       }
       } else {
-        System.out.println(cr+red+"Not your item!"+cr);
+        printOutLn(red, "Not your item!");
       }
       } else {
-        System.out.println(cr+red+"No item found!"+cr);
+        printOutLn(red, "No item found!");
         sleep(0.8);
       }
       } else {
-        System.out.println(cr+red+"No selling during this phase!"+cr);
+        printOutLn(red, "No selling during this phase!");
         sleep(0.8);
       }
     } else if (uc.indexOf("status")!=-1) {
@@ -341,7 +336,7 @@ public class MainGame {
       if (items.isItem(xc,yc)) {
       result = true;
       } else {
-        System.out.println(red+"No item found!"+cr);
+        printOutLn(red, "No item found!");
         sleep(0.8);
       }
     } else if (uc.indexOf("done")!=-1) {
@@ -356,14 +351,14 @@ public class MainGame {
       if (curhp<maxhp) {
         result = true;
       } else {
-        System.out.println(red+"Item's HP is already full!"+cr);
+        printOutLn(red, "Item's HP is already full!");
         sleep(0.8);
       }
       } else {
-        System.out.println(cr+red+"Not your item!"+cr);
+        printOutLn(red, "Not your item!");
       }
       } else {
-        System.out.println(red+"No fixing during this phase!"+cr);
+        printOutLn(red, "No fixing during this phase!");
         sleep(0.8);
       }
     } else if (uc.indexOf("done")!=-1) {
@@ -375,14 +370,14 @@ public class MainGame {
       if (turnphase!=3) {
       result = true;
       } else {
-        System.out.println(red+"You have finished attacking!"+cr);
+        printOutLn(red, "You have finished attacking!");
         sleep(0.8);
       } 
       } else {
-        System.out.println(cr+red+"Not your item!"+cr);
+        printOutLn(red, "Not your item!");
       }
     } else {
-      System.out.println(nocmd);
+      printOutLn(cr, nocmd);
       sleep(0.8);
     }
     return result;
@@ -398,8 +393,8 @@ public class MainGame {
       }
       while (doloop) {
         if (tmp) {
-          SimpleIO.prompt(cmd);
-          uc = SimpleIO.readLine();
+          printOutLn(cr, cmd);
+          uc = readLine();
         }
         if (uc.indexOf("stop")!=-1) {
           break;
@@ -424,18 +419,18 @@ public class MainGame {
         doloop = false;
       }
       }
-      System.out.println("Bought!");
+      printOutLn(cr, "Bought!");
     } else if (uc.indexOf("quit")!=-1) {
-      System.out.println("Brutally Disconnecting...");
+      printOutLn(cr, "Brutally Disconnecting...");
       System.exit(0);
     } else if (uc.indexOf("exit")!=-1) {
-      System.out.println("Brutally Disconnecting...");
+      printOutLn(cr, "Brutally Disconnecting...");
       System.exit(0);
     } else if (uc.indexOf("help")!=-1) {
       doHelp();
     } else if (uc.indexOf("save")!=-1) {
       saveGame(uc.substring(uc.indexOf("'")+1));
-      System.out.println("Game Saved!");
+      printOutLn(cr, "Game Saved!");
     } else if (uc.indexOf("sell")!=-1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.lastIndexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.lastIndexOf(",")+1));
@@ -444,19 +439,19 @@ public class MainGame {
       players.addMoney(curplayer, value);
       addItem(xcoord,ycoord,"d");
       items.delete(xcoord,ycoord);
-      System.out.println("Sold!");
+      printOutLn(cr, "Sold!");
       sleep(0.8);
     } else if (uc.indexOf("status")!=-1) {
       int xcoord = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
       int ycoord = Integer.parseInt(uc.substring(uc.indexOf(",")+1));
       int owner = items.getPlayer(xcoord,ycoord);
       if (owner==1) {
-      System.out.println(yell+items.getInfo(xcoord,ycoord)+cr);
+      printOutLn(cr, yell+items.getInfo(xcoord,ycoord)+cr);
       } else {
-        System.out.println(pink+items.getInfo(xcoord,ycoord)+cr);
+        printOutLn(cr, pink+items.getInfo(xcoord,ycoord)+cr);
       }
-      SimpleIO.prompt("(Press Enter)");
-      SimpleIO.readLine();
+      printOutLn(cr, "(Press Enter)");
+      readLine();
     } else if (uc.indexOf("done")!=-1) {
       if (uc.indexOf("attack")!=-1) {
         turnphase = 3;
@@ -480,8 +475,8 @@ public class MainGame {
         if (needheal<maxheal) {
           maxheal = needheal;
         }
-        SimpleIO.prompt(Stats.getName(items.getItem(xc,yc))+" HP: "+curhp+"/"+maxhp+"\nHeal how much(MAX="+maxheal+")? ");
-        int wantheal = Integer.parseInt(SimpleIO.readLine());
+        printOutLn(cr, Stats.getName(items.getItem(xc,yc))+" HP: "+curhp+"/"+maxhp+"\nHeal how much(MAX="+maxheal+")? ");
+        int wantheal = Integer.parseInt(readLine());
         players.addMoney(curplayer,-wantheal*fixcost);
         items.fix(xc,yc,wantheal);
     } else if ((uc.indexOf("attack")!=-1)||(uc.indexOf("atk")!=-1)) {
@@ -495,8 +490,8 @@ public class MainGame {
     int xc = Integer.parseInt(uc.substring(uc.indexOf(",")-1,uc.indexOf(",")));
       int yc = Integer.parseInt(uc.substring(uc.indexOf(",")+1,uc.lastIndexOf(",")));
       String dir = uc.substring(uc.lastIndexOf(",")+1);
-      SimpleIO.prompt("Power(MAX="+players.getMoney(curplayer)+")? ");
-      int attpower = Integer.parseInt(SimpleIO.readLine());
+      printOutLn(cr, "Power(MAX="+players.getMoney(curplayer)+")? ");
+      int attpower = Integer.parseInt(readLine());
       int attx = 0;
       int atty = 0;
       int xchange = 0;
@@ -573,14 +568,14 @@ public class MainGame {
             String tmpsym = items.getItem(attx,atty);
             items.delete(attx,atty);
             items.create(attx,atty,tmpsym,curplayer,1);
-            System.out.println(red+"Captured Item!"+cr);
+            printOutLn(red, "Captured Item!");
             if (items.getItem(attx,atty).equals("#")) {
               if (items.getPlayer(attx,atty)==1) {
-                System.out.println("\nPlayer 1 Wins!");
+                printOutLn(cr, "\nPlayer 1 Wins!");
                 sleep(1);
                 System.exit(0);
               } else {
-                System.out.println("\nPlayer 2 Wins!");
+                printOutLn(cr, "\nPlayer 2 Wins!");
                 sleep(1);
                 System.exit(0);
               }
@@ -589,15 +584,15 @@ public class MainGame {
             int temppower = attpower;
             attpower -= items.getHP(attx,atty);
             items.fix(attx,atty,-temppower);
-            System.out.println("Target's HP: "+items.getHP(attx,atty)+"/"+Stats.getMaxHP(items.getItem(attx,atty)));
+            printOutLn(cr, "Target's HP: "+items.getHP(attx,atty)+"/"+Stats.getMaxHP(items.getItem(attx,atty)));
           }
-        SimpleIO.readLine();
+        readLine();
         }
         } else {
-            System.out.println(red+"No Path!"+cr);
+            printOutLn(red, "No Path!");
           }
       } else {
-        System.out.println(red+"Not enough money!"+cr);
+        printOutLn(red, "Not enough money!");
     }
     } catch (Exception ex) { ex.printStackTrace(); }
   }
@@ -637,10 +632,10 @@ public class MainGame {
     //Harder to understand the algorithm,
     //even I get confused :).
     //Just know it works!
-    String ac = "";
+    Color ac = cr;
     int ch = 1;
     int cl = 1;
-    String clr;
+    Color clr = cr;
     int pl1money = players.getMoney(1);
     int pl2money = players.getMoney(2);
     int pl1power = players.getPower(1);
@@ -654,11 +649,6 @@ public class MainGame {
       }
       while (cl<=length) {
         toprint = toprint+" ";
-        if ((cl==x)&&(ch==y)&&(attack==true)) {
-          ac = attclr;
-        } else {
-          ac = "";
-        }
         if (items.isItem(cl,ch)) {
           int maxhp = Stats.getMaxHP(items.getItem(cl,ch));
           int curhp = items.getHP(cl,ch);
@@ -686,10 +676,13 @@ public class MainGame {
         } else {
         clr = cr;
         }
+        if ((cl==x)&&(ch==y)&&(attack==true)) {
+          clr = attclr;
+        }
         switch (array[cl-1][ch-1]) {
-          case 1: if(ch%2==0) { toprint=toprint+ac+clr+"|"+cr; } else { toprint=toprint+ac+clr+"-"+cr; } break;
-          case 2: toprint=toprint+ac+clr+"#"+cr; break;
-          case 3: toprint=toprint+ac+clr+"^"+cr; break;
+          case 1: if(ch%2==0) { toprint=toprint+clr+"|"+cr; } else { toprint=toprint+clr+"-"+cr; } break;
+          case 2: toprint=toprint+clr+"#"+cr; break;
+          case 3: toprint=toprint+clr+"^"+cr; break;
           default: if((cl%2==1)&&(ch%2==1)) { toprint=toprint+"o"; } else { toprint=toprint+" "; } break;
         }
         cl++;
@@ -718,7 +711,8 @@ public class MainGame {
       }
     }
     toprint=toprint+"\n(Current Player: "+curplayer+")";
-    System.out.println(toprint);
+    textArea1.appendMulti(cr, toprint+"\n");
+    textArea1.setCaretPosition(textArea1.getDocument().getLength());
   }
   
   private static void sleep(int seconds) {
@@ -752,7 +746,7 @@ public class MainGame {
     //Specifs for HELP command
     //Reads data/help.db to get properties
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir")+spr+"AstralG";
     String topics = "\nHelp Topics";
     String str = "";
     int tcount = 2;
@@ -782,10 +776,10 @@ public class MainGame {
         topics += tmpstr+tcount+") "+str.substring(str.indexOf("=")+1);
         tcount++;
         }
-        System.out.println(topics);
-        SimpleIO.prompt(cmd);
+        printOutLn(cr, topics);
+        printOutLn(cr, cmd);
         topics = topics.replace("\t","\n");
-        String linechoice = topics.split("\n")[Integer.parseInt(SimpleIO.readLine())+1];
+        String linechoice = topics.split("\n")[Integer.parseInt(readLine())+1];
         String topicName = linechoice.substring(linechoice.indexOf(")")+2);
         in.close();
         in = new java.io.BufferedReader(new java.io.FileReader(new java.io.File(dir+spr+"data"+spr+"help.db")));
@@ -817,25 +811,27 @@ public class MainGame {
         itemlines[tcount-1] = str;
         tcount++;
         }
-        System.out.println(topics);
-        SimpleIO.prompt(cmd);
-        int numchoice = Integer.parseInt(SimpleIO.readLine());
+        printOutLn(cr, topics);
+        printOutLn(cr, cmd);
+        int numchoice = Integer.parseInt(readLine());
         String itemText = itemlines[numchoice-1].substring(itemlines[numchoice-1].indexOf("<")+1,itemlines[numchoice-1].indexOf(">"));
         itemText = itemText.replace("RED",red+"RED"+cr);
-        itemText = itemText.replace("HIGHLIGHTED",attclr+"HIGHLIGHTED"+cr);
+        itemText = itemText.replace("BLACK",attclr+"BLACK"+cr);
         itemText = itemText.replace("GREEN",gr+"GREEN"+cr);
         itemText = itemText.replace("YELLOW",yell+"YELLOW"+cr);
         itemText = itemText.replace("PINK",pink+"PINK"+cr);
         itemText = itemText.replace("BLUE",blue+"BLUE"+cr);
-        itemText = itemText.replace("VIOLET",prp+"VIOLET"+cr);
-        SimpleIO.prompt(itemText.replaceAll("!","\n"));
-        SimpleIO.readLine();
+        itemText = itemText.replace("PURPLE",prp+"PURPLE"+cr);
+        itemText = itemText.replaceAll("!","\n");
+        textArea1.appendMulti(cr, itemText+"\n");
+        textArea1.setCaretPosition(textArea1.getDocument().getLength());
+        readLine();
         in.close();
         
     } catch (Exception e) {
-      System.out.println("ERROR READING FILE(Called by:doHelp())");
+      printOutLn(cr, "ERROR READING FILE(Called by:doHelp())");
       e.printStackTrace();
-      SimpleIO.readLine();
+      readLine();
       System.exit(-1);
     }
   }
@@ -845,7 +841,7 @@ public class MainGame {
     int p2money = 0;
     try {
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir")+spr+"AstralG";
     java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
     String tmp = in.readLine();
     height = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
@@ -890,7 +886,7 @@ public class MainGame {
     }
     in.close();
     } catch (Exception ex) {
-      System.out.println("ERROR READING FILE");
+      printOutLn(cr, "ERROR READING FILE");
       System.exit(-1);
     }
   }
@@ -898,7 +894,7 @@ public class MainGame {
   private static void saveGame(String file) {
     try {
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir")+spr+"AstralG";
     try {
     Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+file+".sav");
     } catch (Exception ex) {
@@ -924,10 +920,295 @@ public class MainGame {
     in.writeBytes(locs);
     in.close();
     } catch (Exception ex) {
-      System.out.println("ERROR WRITING FILE");
+      printOutLn(cr, "ERROR WRITING FILE");
       System.exit(-1);
     }
   }
   
-}
+  private static String readLine() {
+    textField1.setEnabled(true);
+    textField1.requestFocus();
+    while (textField1.isEnabled()) {
+    }
+    String text = textField1.getText();
+    textField1.setText("");
+    return text;
+  }
+  
+  private static void printOut(Color c, String text) {
+    textArea1.append(c, text);
+    textArea1.setCaretPosition(textArea1.getDocument().getLength());
+  }
+  
+  private static void printOutLn(Color c, String text) {
+    textArea1.append(c, text+"\n");
+    textArea1.setCaretPosition(textArea1.getDocument().getLength());
+  }
+  
+  private static void playBGMusic(boolean toPlay) {
+    try { 
+    if (toPlay) {
+        sequencer.start();
+    } else {
+      sequencer.stop();
+    }
+    } catch (Exception e) { }
+  }
+ 
+  
+  
+  /*
+   * Start of GUI code
+   * (Variables are at the end)
+   */
+  
+  
+  
+ public MainGame() {
+  initComponents();
+ }
+
+ private void menuItem1ActionPerformed(ActionEvent e) {
+   JOptionPane.showMessageDialog(this, "Thanks for playing Astral, Goodbye!", 
+                                         "Exit Application", JOptionPane.INFORMATION_MESSAGE);
+   System.exit(0);
+ }
+ 
+ private void menuItem4ActionPerformed(ActionEvent e) {
+   JOptionPane.showMessageDialog(this, "Type \"help\" in game for detailed help.", 
+                                         "Game Help", JOptionPane.INFORMATION_MESSAGE);
+ }
+ 
+ private void menuItem5ActionPerformed(ActionEvent e) {
+   JOptionPane.showMessageDialog(this, "AstralG (GUI Version)\nVersion: v1.1\nAuthor: Dmitri Amariei\nWebsite: astralgame.tk", 
+                                         "About Game", JOptionPane.INFORMATION_MESSAGE);
+ }
+ 
+ private void checkBoxMenuItem1ActionPerformed(ActionEvent e) {
+   if (checkBoxMenuItem1.isSelected()) {
+     playBGMusic(true);
+   } else {
+     playBGMusic(false);
+   }
+ }
+
+ private void button1ActionPerformed(ActionEvent e) {
+   //"Run" button is clicked
+   if (textField1.isEnabled()) {
+     textField1.setEnabled(false);
+   }
+ }
+
+ private void initComponents() {
+  menuBar1 = new JMenuBar();
+  menu1 = new JMenu();
+  menuItem2 = new JMenuItem();
+  menuItem3 = new JMenuItem();
+  menuItem1 = new JMenuItem();
+  menu2 = new JMenu();
+  menu3 = new JMenu();
+  menuItem4 = new JMenuItem();
+  menuItem5 = new JMenuItem();
+  scrollPane1 = new JScrollPane();
+  textArea1 = new ColorPane();
+  textField1 = new JTextField();
+  label1 = new JLabel();
+  label2 = new JLabel();
+  button1 = new JButton();
+  label3 = new JLabel();
+  label4 = new JLabel();
+  checkBoxMenuItem1 = new JCheckBoxMenuItem();
+
+  //======== this ========
+  setTitle("AstralG (v1.1)");
+  setResizable(false);
+  Container contentPane = getContentPane();
+  contentPane.setLayout(null);
+
+  //======== menuBar1 ========
+  {
+
+   //======== menu1 ========
+   {
+    menu1.setText("File");
+
+    //---- menuItem2 ----
+    menuItem2.setText("Open...");
+    menuItem2.setEnabled(false);
+    menu1.add(menuItem2);
+
+    //---- menuItem3 ----
+    menuItem3.setText("Save As...");
+    menuItem3.setEnabled(false);
+    menu1.add(menuItem3);
+
+    //---- menuItem1 ----
+    menuItem1.setText("Exit");
+    menuItem1.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+      menuItem1ActionPerformed(e);
+     }
+    });
+    menu1.add(menuItem1);
+   }
+   menuBar1.add(menu1);
+
+   //======== menu2 ========
+   {
+    menu2.setText("Options");
     
+    //---- checkBoxMenuItem1 ----
+    checkBoxMenuItem1.setText("Sound");
+    checkBoxMenuItem1.setSelected(true);
+    checkBoxMenuItem1.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+      checkBoxMenuItem1ActionPerformed(e);
+     }
+    });
+    menu2.add(checkBoxMenuItem1);
+   }
+   menuBar1.add(menu2);
+
+   //======== menu3 ========
+   {
+    menu3.setText("Help");
+
+    //---- menuItem4 ----
+    menuItem4.setText("Game Help");
+    menuItem4.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+      menuItem4ActionPerformed(e);
+     }
+    });
+    menu3.add(menuItem4);
+
+    //---- menuItem5 ----
+    menuItem5.setText("About...");
+    menuItem5.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+      menuItem5ActionPerformed(e);
+     }
+    });
+    menu3.add(menuItem5);
+   }
+   menuBar1.add(menu3);
+  }
+  setJMenuBar(menuBar1);
+
+  //======== scrollPane1 ========
+  {
+
+   //---- textArea1 ----
+   textArea1.setFont(new Font("DejaVu Sans", Font.PLAIN, 12));
+   textArea1.setBackground(new Color(0, 56, 56));
+   textArea1.setForeground(new Color(193, 151, 0));
+   textArea1.setEditable(true);
+   scrollPane1.setViewportView(textArea1);
+  }
+  contentPane.add(scrollPane1);
+  scrollPane1.setBounds(10, 40, 430, 235);
+  contentPane.add(textField1);
+  textField1.setBounds(90, 295, 265, textField1.getPreferredSize().height);
+  textField1.setEnabled(false);
+  textField1.setText("");
+
+  //---- label1 ----
+  label1.setText("Game Window (unsaved)");
+  label1.setFont(new Font("Tahoma", Font.BOLD, 12));
+  contentPane.add(label1);
+  label1.setBounds(10, 15, 290, 25);
+
+  //---- label2 ----
+  label2.setText("Command:");
+  label2.setFont(new Font("Tahoma", Font.BOLD, 11));
+  contentPane.add(label2);
+  label2.setBounds(20, 290, 75, 25);
+
+  //---- button1 ----
+  button1.setText("RUN");
+  button1.setFont(new Font("Tahoma", Font.BOLD, 10));
+  getRootPane().setDefaultButton(button1);
+  button1.addActionListener(new ActionListener() {
+   public void actionPerformed(ActionEvent e) {
+    button1ActionPerformed(e);
+   }
+  });
+  contentPane.add(button1);
+  button1.setBounds(370, 295, 65, 21);
+
+  //---- label3 ----
+  label3.setText("   ");
+  contentPane.add(label3);
+  label3.setBounds(20, 325, 415, label3.getPreferredSize().height);
+
+  //---- label4 ----
+  label4.setText("   ");
+  contentPane.add(label4);
+  label4.setBounds(445, 50, 15, 210);
+
+  { // compute preferred size
+   Dimension preferredSize = new Dimension();
+   for(int i = 0; i < contentPane.getComponentCount(); i++) {
+    Rectangle bounds = contentPane.getComponent(i).getBounds();
+    preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+    preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+   }
+   Insets insets = contentPane.getInsets();
+   preferredSize.width += insets.right;
+   preferredSize.height += insets.bottom;
+   contentPane.setMinimumSize(preferredSize);
+   contentPane.setPreferredSize(preferredSize);
+  }
+  pack();
+  setLocationRelativeTo(getOwner());
+ }
+
+ private static JMenuBar menuBar1;
+ private static JMenu menu1;
+ private static JMenuItem menuItem2;
+ private  static JMenuItem menuItem3;
+ private  static JMenuItem menuItem1;
+ private  static JMenu menu2;
+ private  static JMenu menu3;
+ private  static JMenuItem menuItem4;
+ private  static JMenuItem menuItem5;
+ private  static JScrollPane scrollPane1;
+ private  static ColorPane textArea1;
+ private  static JTextField textField1;
+ private  static JLabel label1;
+ private  static JLabel label2;
+ private  static JButton button1;
+ private  static JLabel label3;
+ private  static JLabel label4;
+ private static  JCheckBoxMenuItem checkBoxMenuItem1;
+ 
+ 
+ //Shortcut/Game Variables
+  final static String nocmd = "Unrecognized Command!";
+  final static String cmd = "";
+  static Color red;
+  static Color blue;
+  static Color attclr;
+  static Color gr;
+  static Color prp;
+  static Color cr;
+  static Color yell;
+  static Color pink;
+  static Players players;
+  static Items items;
+  static String loadfile = "";
+  /* The array stores numbers corrresponding to items
+   * Format:
+   * blank = 0
+   * + = 1
+   * # = 2
+   * ^ = 3
+   */
+  static int height = 5;
+  static int length = 7;
+  static int[][] array;
+  static int curplayer = 1;
+  static int turnphase = 1;
+  static int startmoney = 50;
+  static Sequencer sequencer;
+}

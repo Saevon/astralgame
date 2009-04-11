@@ -27,9 +27,9 @@ Status 6,8 <>
 Upgrade 3,3 <>
 %
 %=Game Colors 
-General Colors <Normal Text: WHITE!Warning/Error Messages: RED!Attacked: HIGHLIGHTED>
+General Colors <Normal Text: ORANGE!Warning/Error Messages: RED!Attacked: BLACK>
 P1 Colors <Building Health (0-3)!3-2 HP: YELLOW!2-1 HP: GREEN!1-0 HP: RED>
-P2 Colors <Building Health (0-3)!3-2 HP: PINK!2-1 HP: BLUE!1-0 HP: VIOLET>
+P2 Colors <Building Health (0-3)!3-2 HP: PINK!2-1 HP: BLUE!1-0 HP: PURPLE>
 %
 %=Skills
 None <Not yet implemented.>

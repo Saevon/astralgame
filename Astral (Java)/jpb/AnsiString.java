@@ -68,7 +68,7 @@ public class AnsiString implements java.io.Serializable {
     public static final String CYAN_ESC = "\033[1;36m";
 
     /** <font color="yellow">escape sequence for yellow </font> */
-    public static final String YELLOW_ESC = "\033[1;33m";
+    public static final String YELLOW_ESC = "\033[0;33m";
 
     /** escape sequence to reset back to the default colour */
     public static final String RESET_ESC = "\033[0m";
