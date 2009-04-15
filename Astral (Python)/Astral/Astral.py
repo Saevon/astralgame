@@ -204,8 +204,14 @@ def options_menu():
             color_options()
         ########################################################################
         elif choice == "rd":
-            RESET_OPTIONS = write_options(RESET_OPTIONS)
-            options = RESET_OPTIONS[:]
+            options = RESET_OPTIONS[:4]
+            options.append( [] )
+            for item in RESET_OPTIONS[4][:]:
+                options[4].append( item )
+            options.append( [] )
+            for item in RESET_OPTIONS[5][:]:
+                options[5].append( item )
+            
         ########################################################################
         elif choice == "s":
             for line in range(len(options[4])):
