@@ -96,7 +96,7 @@ public class Items {
       String str;
       long tmp = 0;
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir");
     RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     try {
     tmp = in.getFilePointer() + 1;
@@ -144,7 +144,7 @@ public class Items {
     String str = "";
     try {
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir");
     RandomAccessFile in = new RandomAccessFile(new File(dir+spr+"data"+spr+"items.db"), "rw");
     try {
     while (((str = in.readLine()).indexOf(x+"'"+y))==-1) {

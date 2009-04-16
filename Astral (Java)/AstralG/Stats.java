@@ -75,7 +75,7 @@ public class Stats {
   private static String readStats(String symbol, String type) {
     //Reads data/stats.db to get properties
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"Astral";
+    String dir = System.getProperty("user.dir");
     String str = "";
     try {
         BufferedReader in = new BufferedReader(new FileReader(new File(dir+spr+"data"+spr+"stats.db")));

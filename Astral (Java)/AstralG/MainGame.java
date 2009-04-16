@@ -43,7 +43,7 @@ public class MainGame extends JFrame {
     //Starts playing music
       try {
       String spr = System.getProperty("file.separator");
-        String dir = System.getProperty("user.dir")+spr+"AstralG";
+        String dir = System.getProperty("user.dir");
         Sequence sequence = MidiSystem.getSequence(new File(dir+spr+"sound"+spr+"background.mid"));
     
         // Create a sequencer for the sequence
@@ -59,8 +59,8 @@ public class MainGame extends JFrame {
     printOutLn(cr, "\n\t-A-S-T-R-A-L-");
     while (looper==0) {
     printOutLn(cr, "\nMAIN MENU\n"+
-                    "1) Start a new game    2) Load a game\n"+
-                    "3) Set Map Size            4) Set Money\n"+
+                    "1) Start a new game\t2) Load a game\n"+
+                    "3) Set Map Size\t4) Set Money\n"+
                     "5) View Help\n"+
                     "6) Quit\n");
     try {
@@ -113,7 +113,7 @@ public class MainGame extends JFrame {
       players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
       String spr = System.getProperty("file.separator");
-      String dir = System.getProperty("user.dir")+spr+"Astral";
+      String dir = System.getProperty("user.dir");
       try {
       Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
       } catch (Exception ex) {
@@ -156,7 +156,7 @@ public class MainGame extends JFrame {
       players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
       String spr = System.getProperty("file.separator");
-      String dir = System.getProperty("user.dir")+spr+"Astral";
+      String dir = System.getProperty("user.dir");
       try {
       Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
       } catch (Exception ex) {
@@ -187,7 +187,7 @@ public class MainGame extends JFrame {
       players = new Players("Player1", "Player2", startmoney, 0);
       items = new Items();
       String spr = System.getProperty("file.separator");
-      String dir = System.getProperty("user.dir")+spr+"Astral";
+      String dir = System.getProperty("user.dir");
       try {
       Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+"items.db");
       } catch (Exception ex) {
@@ -746,7 +746,7 @@ public class MainGame extends JFrame {
     //Specifs for HELP command
     //Reads data/help.db to get properties
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"AstralG";
+    String dir = System.getProperty("user.dir");
     String topics = "\nHelp Topics";
     String str = "";
     int tcount = 2;
@@ -841,8 +841,8 @@ public class MainGame extends JFrame {
     int p2money = 0;
     try {
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"AstralG";
-    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
+    String dir = System.getProperty("user.dir");
+    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"save"+spr+file+".sav"), "rw");
     String tmp = in.readLine();
     height = Integer.parseInt(tmp.substring(tmp.indexOf("=")+1));
     tmp = in.readLine();
@@ -894,13 +894,13 @@ public class MainGame extends JFrame {
   private static void saveGame(String file) {
     try {
     String spr = System.getProperty("file.separator");
-    String dir = System.getProperty("user.dir")+spr+"AstralG";
+    String dir = System.getProperty("user.dir");
     try {
-    Runtime.getRuntime().exec("chmod 755 " + dir+spr+"data"+spr+file+".sav");
+    Runtime.getRuntime().exec("chmod 755 " + dir+spr+"save"+spr+file+".sav");
     } catch (Exception ex) {
     }
-    new File(dir+spr+"data"+spr+file+".sav").delete();
-    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"data"+spr+file+".sav"), "rw");
+    new File(dir+spr+"save"+spr+file+".sav").delete();
+    java.io.RandomAccessFile in = new java.io.RandomAccessFile(new File(dir+spr+"save"+spr+file+".sav"), "rw");
     String vars = "height="+height+"\nlength="+length+"\nplayer1="+players.getMoney(1)+"\nplayer2="+
                   players.getMoney(2)+"\ncurplayer="+curplayer+"\nturnphase="+turnphase;
     in.writeBytes(vars);
@@ -1099,7 +1099,7 @@ public class MainGame extends JFrame {
   {
 
    //---- textArea1 ----
-   textArea1.setFont(new Font("DejaVu Sans", Font.PLAIN, 12));
+   textArea1.setFont(new Font("Lucida Console", Font.PLAIN, 12));
    textArea1.setBackground(new Color(0, 56, 56));
    textArea1.setForeground(new Color(193, 151, 0));
    textArea1.setEditable(true);
