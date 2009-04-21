@@ -1134,7 +1134,7 @@ while choice != "0" or choice.lower() == "quit":
             ####################################################################
             elif len(choice) >= 4 and choice[:4].lower() == "ally":
                 people = {}
-                for person in Player.live_players:
+                for person in Player.live_players[:]:
                     exec "people[player%s.name] = person" % (person)
                 choice = choice.split(" ")
                 if len(choice[0]) >= 5:
@@ -1210,7 +1210,7 @@ while choice != "0" or choice.lower() == "quit":
             ####################################################################
             elif len(choice) >= 7 and choice.lower()[:7] == "tribute":
                 people = {}
-                for person in Player.live_players:
+                for person in Player.live_players[:]:
                     exec "people[player%s.name] = person" % (person)
                 choice = choice.split(" ")
                 if len(choice) < 2:
@@ -1456,7 +1456,8 @@ while choice != "0" or choice.lower() == "quit":
                     field.setcell(key[0], key[1], "")
                 exec "player%i.buildings = {}" % (player)
                 exec "player%i.build_list = {}" % (player)
-                exec "player%i.isalive" % (player)
+                print Player.live_players
+                exec "player%i.isalive()" % (player)
                 continue_option = "done"
                 
             # SAVE
