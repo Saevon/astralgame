@@ -1,6 +1,6 @@
-#summary Details about features in the Python version.
+*summary Details about features in the Python version.*
 
-=== Introduction ===
+## Introduction
 
 The Python version has many features and works on the following OS:
   * Windows systems (color support)
@@ -8,15 +8,18 @@ The Python version has many features and works on the following OS:
 Other to be added once Beta is complete for Windows<br>
 Beta is complete, and testing is proceeding.
 
-=== Details ===
+# Details
 
 Features:
   * Color was added to show Damage
-|| Purple  || Slight Damage   || 99-66 % ||
-|| Red     || Mediocre Damage || 65-33 % ||
-|| Whitish || Heavy damage    || 32-0  % ||
 
-Buildings:
+| Colour  |   Meaning       |         |
+|---------|-----------------|---------|
+| Purple  | Slight Damage   | 99-66 % |
+| Red     | Mediocre Damage | 65-33 % |
+| Whitish | Heavy damage    | 32-0  % |
+
+### Buildings:
   * Empty Building Location (*.*)
   * Astral Lines (Allows buildings to be connected) (* - *) OR (* | *)
   * Wizards Cottage (Main structure) (*W*)
@@ -24,14 +27,18 @@ Buildings:
   * Mining Camp (Better Village, lower HP, Research Gem mining) (*M*)
   * Void Crystal (Can block attacks, destroys connected Astral lines when hit by attack) (*X*) Pre. Gem Mining
   * Wall (Defensive Structure, can be built as an AL or as a Building) (*W*)<br>
-Research:
+
+### Research:
   * ATTACK: Basic Magics - Allows attacking
   * RESEARCH: Gem Mining - Allows Void Crystals buildings, later allows research of other gem types<br>
   * RESEARCH: Resistance Spell - Allows you to raise the resistance of some items.
   * SPECIAL, there are also some upgrades to buildings that can be done in the stats menu
-Console Commands:
+
+
+### Console Commands:
   * () means that this is optional
 
+```
 > build (Name)<br>
 Goes into build menu, leading you through the building process, also allows viewing of these structure`'`s statistics.<br>
 By typing "continue" when choosing where to place it you can keep building by just typing the location, if you have enough mana
@@ -112,10 +119,14 @@ Ends player's turn.<br><br>
 <br>
 ----
 <br>
-=== Ideas for Technology ===
 
-  * Send any ideas you have to blastowind@gmail.com, they will be viewed and could potentially be added
-<br>
---> NEW ATTACKS:
+```
+
+## Ideas for Technology
+
+  * Send any ideas you have to Saevon, they will be viewed and could potentially be added
+
+
+### NEW ATTACKS:
   * Arrow Hail: choose two points, and all buldings within these points have a chance of being hit, damages allied buildings
   * Poison Magics: Like Basic Magics, but does little damage, makes landscape hit ( only enemy buildings are hit ) poisoned. This last for a while, even if you capture the building.
