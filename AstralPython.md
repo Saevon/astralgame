@@ -5,7 +5,7 @@
 The Python version has many features and works on the following OS:
   * Windows systems (color support)
 
-Other to be added once Beta is complete for Windows<br>
+Other to be added once Beta is complete for Windows
 Beta is complete, and testing is proceeding.
 
 # Details
@@ -26,11 +26,11 @@ Features:
   * Village (Minor Mana generator, and attack building) (*^*)
   * Mining Camp (Better Village, lower HP, Research Gem mining) (*M*)
   * Void Crystal (Can block attacks, destroys connected Astral lines when hit by attack) (*X*) Pre. Gem Mining
-  * Wall (Defensive Structure, can be built as an AL or as a Building) (*W*)<br>
+  * Wall (Defensive Structure, can be built as an AL or as a Building) (*W*)
 
 ### Research:
   * ATTACK: Basic Magics - Allows attacking
-  * RESEARCH: Gem Mining - Allows Void Crystals buildings, later allows research of other gem types<br>
+  * RESEARCH: Gem Mining - Allows Void Crystals buildings, later allows research of other gem types
   * RESEARCH: Resistance Spell - Allows you to raise the resistance of some items.
   * SPECIAL, there are also some upgrades to buildings that can be done in the stats menu
 
@@ -39,87 +39,83 @@ Features:
   * () means that this is optional
 
 ```
-> build (Name)<br>
-Goes into build menu, leading you through the building process, also allows viewing of these structure`'`s statistics.<br>
+> build (Name)
+Goes into build menu, leading you through the building process, also allows viewing of these structure`'`s statistics.
 By typing "continue" when choosing where to place it you can keep building by just typing the location, if you have enough mana
-<br>
 
-> ally(+ Name)<br>
-(*-*) Cancel Alliance with Name<br>
-(*+*) Start Alliance with Name,br.
+
+> ally(+ Name)
+(*-*) Cancel Alliance with Name
+(*+*) Start Alliance with Name
 When no optionals are given it goes into a menu to show alliances, and change them.
-<br>
 
-> tribute (player amount)<br>
+
+> tribute (player amount)
 Send Mana to a player
-<br>
 
-> fix x,y (amount)<br>
-Fixes the building at x,y by the amount, if possible.<br>
-'max' may be used as an amount<br>
+
+> fix x,y (amount)
+Fixes the building at x,y by the amount, if possible.
+'max' may be used as an amount
 This can also be done in the stats menu
-<br>
 
-> sell x,y<br>
-Sells the building at x,y.<br>
+
+> sell x,y
+Sells the building at x,y.
 This can also be done in the stats menu
-<br>
 
-> stats x,y<br>
-Shows the building's stats<br>
-This menu also allows:<br>
--> Fixing<br>
--> Upgrading the Building<br>
+
+> stats x,y
+Shows the building's stats
+This menu also allows:
+-> Fixing
+-> Upgrading the Building
 -> Selling
-<br>
 
-> income<br>
+
+> income
 Shows your income, with all the buildings that give you mana.
-<br>
 
-> research (Name)<br>
+
+> research (Name)
 researches the item if possible
-<br>
 
-> attack (Name)<br>
+
+> attack (Name)
 Goes into the attacks menu, and shows possible attacks. Specify the direction and other details for the attack in this menu.
-<br>
 
-> save (filename)<br>
+
+> save (filename)
 lets you save the game, if filename is not specified, it saves on the auto save.
-<br>
 
-> load (filename)<br>
+
+> load (filename)
 lets you load the game, if filename is not specified, it loads the auto save.
-<br>
 
-> help (item)<br>
-Shows command info and game info and symbols<br>
+
+> help (item)
+Shows command info and game info and symbols
 (Currently not tested and not detailed, will be last part of Beta)
-<br>
 
-> surrender<br>
+
+> surrender
 Leave the game, you are considered dead, but can still win in terms of score.
-<br>
 
-> quit<br>
-> exit<br>
-> q<br>
+
+> quit
+> exit
+> q
 Disconnects from game
-<br>
 
-> ~<br>
-Goes into console, allows execution of typed data as python script. <br>
+
+> ~
+Goes into console, allows execution of typed data as python script.
 This will be removed later, and cheatcodes added instead. (Cheats ?? Maybe)
-<br>
 
-> done<br>
-> end turn<br>
-Ends player's turn.<br><br>
-<br>
-----
-<br>
 
+> done
+> end turn
+Ends player's turn.
 ```
 
 ## Ideas for Technology
