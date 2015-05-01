@@ -1,6 +1,6 @@
-#summary Details about features in the Java version.
+*summary Details about features in the Java version.*
 
-=== Introduction ===
+## Introduction 
 
 The Java version has many features and works on the following OS:
   * All UNIX based systems
@@ -9,10 +9,9 @@ The Java version has many features and works on the following OS:
 
 
 
-=== General Gameplay ===
+## General Gameplay
 
-Astral is turn-based and therefore follows a turn order
-and allows the following actions (in order):
+Astral is turn-based and therefore follows a turn order and allows the following actions (in order):
   # Get income and power
   # Build, fix, or sell
   # Attack until done
@@ -21,7 +20,7 @@ and allows the following actions (in order):
 
 
 
-=== Game Details ===
+## Game Details
 
 Buildings:
   * Astral Lines (Allows buildings to be connected) (*+*)
@@ -29,15 +28,19 @@ Buildings:
   * Village (You can use this as an offensive structure, +5P/turn) (*^*)
   * Gem Block (Can block attacks) (*X*) Pre. Gem Mining
   * Mage Tower (Research skills) (*T*)
-  * Storehouse (Allows power storage for later use) (*W*) Pre. Solar Power<br>
-Note:% Damaged is color-coded for buildings
+  * Storehouse (Allows power storage for later use) (*W*) Pre. Solar Power
+ 
+Note:% Damage is color-coded for buildings
 
 Skills:
   * Basic Magics - Allows attacking (*BM*)
   * Gem Mining - Allows defensive buildings (*GM*)
-  * Solar Power - Allows energy storage (*SP*)<br>
-Console Commands:
-{{{
+  * Solar Power - Allows energy storage (*SP*)
+
+
+### Console Commands:
+
+```
 > buy ^,1,2
 Buys item and places at those coords
 
@@ -88,7 +91,7 @@ Target HP: 0/15
 Power Left: 12
 Next Attack: West
 --Press ENTER--
-// Countines until stopped
+// Continues until stopped
 
 > quit
 Brutally disconnects from game
@@ -108,4 +111,4 @@ then the skill to learn.
 turn - Ends player's turn.
 attack - Ends the attacking part of the turn.
 game - Surrender/Close game (like quit, but more safe)
-}}}
+```
